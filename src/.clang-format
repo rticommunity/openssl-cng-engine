@@ -1,0 +1,61 @@
+
+# (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# Attempt to mimick OpenSSL's GNU indent settings in clang-format.
+# See https://www.openssl.org/blog/blog/2015/02/11/code-reformat-finished/
+
+# OpenSSL formatting is inspired by the Linux Kernel.
+# The Linux Kernel clang-format settings are closest to LLVM's
+#   so use that as the basis.
+
+BasedOnStyle: LLVM
+
+
+# Override the settings that are different for the Linux Kernel.
+# (To find these, do a diff on the clang-format -dump-config outputs
+#   and ignore those settings related to C++ or ObjC)
+# Those settings chosen differently by OpenSSL are commented out here.
+
+AlignTrailingComments: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: None
+BreakBeforeBraces: Linux
+BreakBeforeTernaryOperators: false
+BreakStringLiterals: false
+# ContinuationIndentWidth: 8 -- OpenSSL chooses the LLVM setting of 4 here
+# IndentWidth: 8 -- OpenSSL chooses 4, see below
+KeepEmptyLinesAtTheStartOfBlocks: false
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 10
+PenaltyExcessCharacter: 100
+ReflowComments: false
+SortIncludes: false	
+SpacesInContainerLiterals: false
+# UseTab: Always -- OpenSSL chooses the LLVM setting of None here
+
+
+# OpenSSL formatting settings that are different from Linux's and LLVM's
+
+IndentWidth: 4
+
+
+# Some settings that the OpenSSL coding style documentation is silent about,
+#   so let's just choose them to our liking :-)
+
+AlignConsecutiveMacros: true
+AlwaysBreakAfterReturnType: TopLevel

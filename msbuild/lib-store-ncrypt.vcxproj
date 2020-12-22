@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="import-pre.props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{749FA512-7BA8-4882-BD4E-31B159108A2A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>lib-store-ncrypt</ProjectName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\s_ncrypt_ec.c" />
+    <ClCompile Include="..\src\s_ncrypt_err.c" />
+    <ClCompile Include="..\src\s_ncrypt_evp_pkey.c" />
+    <ClCompile Include="..\src\s_ncrypt_rsa.c" />
+    <ClCompile Include="..\src\s_ncrypt_x509.c" />
+    <ClCompile Include="..\src\s_ncrypt_loader.c" />
+    <ClCompile Include="..\src\s_ncrypt_uri.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\s_ncrypt_ec.h" />
+    <ClInclude Include="..\src\s_ncrypt_ec_lcl.h" />
+    <ClInclude Include="..\src\s_ncrypt_err.h" />
+    <ClInclude Include="..\src\s_ncrypt_evp_pkey_lcl.h" />
+    <ClInclude Include="..\src\s_ncrypt_rsa.h" />
+    <ClInclude Include="..\src\s_ncrypt_rsa_lcl.h" />
+    <ClInclude Include="..\src\s_ncrypt_x509_lcl.h" />
+    <ClInclude Include="..\src\s_ncrypt.h" />
+    <ClInclude Include="..\src\s_ncrypt_loader.h" />
+    <ClInclude Include="..\src\s_ncrypt_uri_lcl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="lib-common.vcxproj">
+      <Project>{d83921e2-a6a0-414a-a974-d53f413af37d}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="import-post.props" />
+</Project>

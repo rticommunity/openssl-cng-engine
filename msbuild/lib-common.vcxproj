@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="import-pre.props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D83921E2-A6A0-414A-A974-D53F413AF37D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>lib-common</ProjectName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\c_cmn_dbg.c" />
+    <ClCompile Include="..\src\c_cmn_win.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\c_cmn.h" />
+    <ClInclude Include="..\src\c_cmn_dbg.h" />
+    <ClInclude Include="..\src\c_cmn_ossl.h" />
+    <ClInclude Include="..\src\c_cmn_win.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="import-post.props" />
+</Project>

@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="import-pre.props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{b2fa4078-c8ed-41ca-a96c-efa98c0874f4}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>gtest-engine-bcrypt</ProjectName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\test\test_bcrypt.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_aes_gcm.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_dh.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_ec.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_ossl.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_hmac_sha.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_rand.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_rsa.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_sha.cpp" />
+    <ClCompile Include="..\test\test_bcrypt_smime.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\test\test_bcrypt.h" />
+    <ClInclude Include="..\test\test_bcrypt_ossl.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets'))" />
+  </Target>
+  <Import Project="import-post.props" />
+</Project>
