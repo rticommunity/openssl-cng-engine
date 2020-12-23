@@ -1,0 +1,7 @@
+/engine-bcrypt.vcxproj.user
+/engine-ncrypt.vcxproj.user
+/gtest-engine-bcrypt.vcxproj.user
+/gtest-engine-ncrypt.vcxproj.user
+/lib-common.vcxproj.user
+/lib-evp-bcrypt.vcxproj.user
+/lib-store-ncrypt.vcxproj.user

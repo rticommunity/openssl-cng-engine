@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Hack to find requested SDK version from solution name, if provided -->
+    <SDKVersionRequested Condition=" $(SolutionName.Split('-').Length)==4 ">$(SolutionName.Split('-')[3])</SDKVersionRequested>
+    <SDKSuffix Condition=" '$(SDKVersionRequested)'!='' ">-$(SDKVersionRequested)</SDKSuffix>
+    <WindowsTargetPlatformVersionReq Condition=" '$(SDKVersionRequested)'=='2004' ">10.0.19041.0</WindowsTargetPlatformVersionReq>
+    <WindowsTargetPlatformVersionReq Condition=" '$(SDKVersionRequested)'=='1903' ">10.0.18362.0</WindowsTargetPlatformVersionReq>
+    <WindowsTargetPlatformVersionReq Condition=" '$(SDKVersionRequested)'=='1809' ">10.0.17763.0</WindowsTargetPlatformVersionReq>
+	<!-- If no specific SDK has been requested, get latest from registry -->
+    <WindowsTargetPlatformVersionReq Condition=" '$(WindowsTargetPlatformVersion)'=='' ">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0@ProductVersion)</WindowsTargetPlatformVersionReq>
+    <WindowsTargetPlatformVersionReq Condition=" '$(WindowsTargetPlatformVersion)'=='' ">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0@ProductVersion)</WindowsTargetPlatformVersionReq>
+    <!-- Convert variabl to explicit version number, to make it readable in VS -->
+	<WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersionReq)'=='10.0.19041' ">10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersionReq)'=='10.0.18362' ">10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersionReq)'=='10.0.17763' ">10.0.17763.0</WindowsTargetPlatformVersion>
+	<!-- If no known SDK was found by now, set it to the latest and VS will complain about it... -->
+	<WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersion)'=='' ">10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset Condition=" '$(VisualStudioVersion)'=='16.0' ">v142</PlatformToolset>
+    <PlatformToolset Condition=" '$(VisualStudioVersion)'=='15.0' ">v141</PlatformToolset>
+    <OutDir>..\bld\$(PlatformTarget)-$(Configuration)-$(PlatformToolset)$(SDKSuffix)\all\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <UseDebugLibraries Condition=" '$(Configuration)'=='Debug' ">true</UseDebugLibraries>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Microsoft-googletest-v140-windesktop-msvcstl-static-rt-dyn-Disable-gtest_main>true</Microsoft-googletest-v140-windesktop-msvcstl-static-rt-dyn-Disable-gtest_main>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+     <DebugIdentifier Condition=" '$(Configuration)'=='Debug' ">_DEBUG</DebugIdentifier>
+     <DebugIdentifier Condition=" '$(Configuration)'=='Release' ">NDEBUG</DebugIdentifier>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <!-- If OpenSSLDir not defined, try installation directory in AppVeyor environments -->
+    <OpenSSLDir Condition=" '$(OpenSSLDir)|$(Platform)'=='|x64' And Exists('C:\OpenSSL-v111-Win64') ">C:\OpenSSL-v111-Win64</OpenSSLDir>
+    <OpenSSLDir Condition=" '$(OpenSSLDir)|$(Platform)'=='|Win32' And Exists('C:\OpenSSL-v111-Win32') ">C:\OpenSSL-v111-Win32</OpenSSLDir>
+    <!-- If OpenSSLDir still not defined, try default OpenSSL installation directories when building from source -->
+    <OpenSSLDir Condition=" '$(OpenSSLDir)|$(Platform)'=='|x64' And Exists('C:\Program Files\OpenSSL') ">C:\Program Files\OpenSSL</OpenSSLDir>
+    <OpenSSLDir Condition=" '$(OpenSSLDir)|$(Platform)'=='|Win32' And Exists('C:\Program Files (x86)\OpenSSL') ">C:\Program Files (x86)\OpenSSL</OpenSSLDir>
+	<OpenSSLDir>$(OpenSSLDir.TrimEnd('\'))</OpenSSLDir>
+	<OpenSSLDir Condition=" '$(Configuration)'=='Debug' And Exists('$(OpenSSLDir)d') ">$(OpenSSLDir)d</OpenSSLDir>
+	<OpenSSLDir>$(OpenSSLDir)\</OpenSSLDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+	  <!-- Settings specific to Debug configurations -->
+      <RuntimeLibrary Condition=" '$(Configuration)'=='Debug' ">MultiThreadedDebugDLL</RuntimeLibrary>
+      <Optimization Condition=" '$(Configuration)'=='Debug' ">Disabled</Optimization>
+      <DebugInformationFormat Condition=" '$(Configuration)'=='Debug' ">ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings Condition=" '$(Configuration)'=='Debug' ">4820;5045;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+	  <!-- Settings specific to Release configurations -->
+      <RuntimeLibrary Condition=" '$(Configuration)'=='Release' ">MultiThreadedDLL</RuntimeLibrary>
+      <Optimization Condition=" '$(Configuration)'=='Release' ">MaxSpeed</Optimization>
+      <FunctionLevelLinking Condition=" '$(Configuration)'=='Release' ">true</FunctionLevelLinking>
+      <IntrinsicFunctions Condition=" '$(Configuration)'=='Release' ">true</IntrinsicFunctions>
+      <DisableSpecificWarnings Condition=" '$(Configuration)'=='Release' ">4711;4820;5045;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+	  <!-- Settings common to all -->
+      <PreprocessorDefinitions>$(DebugIdentifier);OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OpenSSLDir)include;$(SolutionDir)include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+	  <!-- Settings specific to Debug configurations -->
+      <GenerateDebugInformation Condition=" '$(Configuration)'=='Debug' ">DebugFull</GenerateDebugInformation>
+	  <!-- Settings specific to Release configurations -->
+      <GenerateDebugInformation Condition=" '$(Configuration)'=='Release' ">false</GenerateDebugInformation>
+      <LinkTimeCodeGeneration Condition=" '$(Configuration)'=='Release' ">Default</LinkTimeCodeGeneration>
+      <EnableCOMDATFolding Condition=" '$(Configuration)'=='Release' ">true</EnableCOMDATFolding>
+      <OptimizeReferences Condition=" '$(Configuration)'=='Release' ">true</OptimizeReferences>
+	  <!-- Settings common to all -->
+      <AdditionalLibraryDirectories>$(OpenSSLDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+</Project>

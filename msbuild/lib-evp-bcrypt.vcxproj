@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="import-pre.props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1DC0B7B4-C3D8-4BEA-9DE9-7B057DE7452D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>lib-evp-bcrypt</ProjectName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\e_bcrypt_cipher.c" />
+    <ClCompile Include="..\src\e_bcrypt_dh.c" />
+    <ClCompile Include="..\src\e_bcrypt_digest.c" />
+    <ClCompile Include="..\src\e_bcrypt_ec.c" />
+    <ClCompile Include="..\src\e_bcrypt_err.c" />
+    <ClCompile Include="..\src\e_bcrypt_pkey.c" />
+    <ClCompile Include="..\src\e_bcrypt_provider.c" />
+    <ClCompile Include="..\src\e_bcrypt_rand.c" />
+    <ClCompile Include="..\src\e_bcrypt_rsa.c" />
+    <ClCompile Include="..\src\e_bcrypt_secret.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\e_bcrypt_cipher.h" />
+    <ClInclude Include="..\src\e_bcrypt_dh.h" />
+    <ClInclude Include="..\src\e_bcrypt_digest.h" />
+    <ClInclude Include="..\src\e_bcrypt_ec.h" />
+    <ClInclude Include="..\src\e_bcrypt_err.h" />
+    <ClInclude Include="..\src\e_bcrypt_pkey.h" />
+    <ClInclude Include="..\src\e_bcrypt_provider.h" />
+    <ClInclude Include="..\src\e_bcrypt_rand.h" />
+    <ClInclude Include="..\src\e_bcrypt_rsa.h" />
+    <ClInclude Include="..\src\e_bcrypt_secret.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="lib-common.vcxproj">
+      <Project>{d83921e2-a6a0-414a-a974-d53f413af37d}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="import-post.props" />
+</Project>
