@@ -207,23 +207,25 @@ clang-format --dry-run --Werror src\*.c src\*.h || GOTO :failure
 FOR %%C IN (Debug,Release) DO (
   FOR %%P IN (x86,x64) DO (
     ECHO.MSBuild-ing %%P^|%%C	into bld^\%%P-%%C%BLD_SUF%
-    MSBuild.exe                         ^
-	  %VS_SOLUTION%                     ^
-	  /p:Platform=%%P                   ^
-	  /p:Configuration=%%C              ^
-	  /p:RestorePackagesConfig=true     ^
-	  %MSB_TARGET%                      ^
-	  /restore /verbosity:quiet /nologo ^
-	  /fl1 /flp1:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-errors.log;errorsonly       ^
-	  /fl2 /flp2:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-warnings.log;warningsonly   ^
-	  /fl3 /flp3:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-normal.log;verbosity=normal ^
+    MSBuild.exe                            ^
+	  %VS_SOLUTION%                        ^
+	  %MSB_TARGET%                         ^
+	  -restore                             ^
+	  -property:Platform=%%P               ^
+	  -property:Configuration=%%C          ^
+	  -property:RestorePackagesConfig=true ^
+	  -verbosity:quiet                     ^
+	  -nologo                              ^
+	  -fl1 -flp1:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-errors.log;errorsonly       ^
+	  -fl2 -flp2:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-warnings.log;warningsonly   ^
+	  -fl3 -flp3:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-normal.log;verbosity=normal ^
 	  || GOTO :failure
   )
 )
 ECHO.%NRM%
 
 :: Note to self: the following can be added to the MSBuild command for detailed logging:
-:: /fl4 /flp4:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-detailed.log;verbosity=detailed
+:: -fl4 -flp4:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-detailed.log;verbosity=detailed
 
 :done
 ECHO.Done
