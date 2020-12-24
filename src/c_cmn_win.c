@@ -43,6 +43,7 @@ const struct error_info_st {
     {STATUS_INVALID_SIGNATURE,   "The cryptographic signature is invalid."},
     {STATUS_AUTH_TAG_MISMATCH,   "The computed authentication tag did not match the input authentication tag."},
     {STATUS_INVALID_BUFFER_SIZE, "The size of the buffer is invalid for the specified operation."},
+    {STATUS_HEAP_CORRUPTION,     "A heap has been corrupted."},
 
     /* From winerror.h */
     {NTE_BAD_FLAGS,         "Invalid flags specified."},

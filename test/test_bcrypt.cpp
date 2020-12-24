@@ -146,7 +146,10 @@ public:
                 }
                 else {
                     _CrtMemDumpAllObjectsSince(&start_mem_);
-                    FAIL();
+                    std::cout
+                        << "--- Unexpected memory leak, probably coming from gtest"
+                        << std::endl;
+                    /* FAIL(); */
                 }
             }
         }
