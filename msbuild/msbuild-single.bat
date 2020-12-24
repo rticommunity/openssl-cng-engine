@@ -176,10 +176,11 @@ IF [%VS_MSBUILDCMD%]==[] (
 
 :msbuild_found
 
-ECHO.%VS_MSBUILDCMD% | findstr /C:"2019">nul && (
+ECHO.%VS_MSBUILDCMD% | FINDSTR /C:"2019">nul && (
   SET VS_VERSION_USED=VS2019
   SET TOOLSET_VERSION=v142
-) || ECHO.%VS_MSBUILDCMD% | findstr /C:"2017">nul && (
+  SET CLANGF_DRYRUN_OPTIONS=--dry-run --Werror
+) || ECHO.%VS_MSBUILDCMD% | FINDSTR /C:"2017">nul && (
   SET VS_VERSION_USED=VS2017
   SET TOOLSET_VERSION=v141
 ) || ECHO.%FLR%Warning: not sure which toolversion is being used...%NRM%
@@ -201,8 +202,12 @@ ECHO.%NRM%
 CALL "%VS_MSBUILDCMD%"
 
 ECHO.%ACT%
-ECHO.Verifying code formatting
-clang-format --dry-run --Werror src\*.c src\*.h || GOTO :failure
+IF DEFINED CLANGF_DRYRUN_OPTIONS% (
+  ECHO.Verifying code formatting
+  clang-format %CLANGF_DRYRUN_OPTIONS% src\*.c src\*.h || GOTO :failure
+) ELSE (
+  ECHO.Warning: Not verifying code formatting, need clang-format v10+
+)
 
 FOR %%C IN (Debug,Release) DO (
   FOR %%P IN (x86,x64) DO (
