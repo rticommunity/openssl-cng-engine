@@ -18,13 +18,14 @@
 
 /* Windows-specific includes and definitions */
 #include "c_cmn_dbg.h"
-//#include "c_cmn_ossl.h"
+#include "c_cmn_ossl.h"
 #include "c_cmn_win.h"
 
 #define CMN_UNUSED(p) UNREFERENCED_PARAMETER(p)
 
-#define CMN_malloc(n)             malloc(n)
-#define CMN_free(p)               free(p)
+#define CMN_malloc(n)             OPENSSL_malloc(n)
+#define CMN_realloc(p, n)         OPENSSL_realloc(p, n)
+#define CMN_free(p)               OPENSSL_free(p)
 #define CMN_memcpy(dst, src, n)   memcpy((dst), (src), (n))
 #define CMN_memset(dst, val, n)   memset((dst), (val), (n))
 #define CMN_strdup(str)           _strdup(str)

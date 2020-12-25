@@ -31,6 +31,35 @@
 // but it is not specified in their header files
 #pragma comment(lib, "libcrypto.lib")
 
+// Make sure the same memory functions are used everywhere
+// This avoids issues when mixing debug release OpenSSL libs
+static void *
+bcrypt_malloc(size_t n, const char *f, int l) {
+#ifdef _DEBUG
+    return _malloc_dbg(n, _NORMAL_BLOCK, f, l);
+#else
+    return malloc(n);
+#endif
+}
+
+static void *
+bcrypt_realloc(void *p, size_t n, const char *f, int l) {
+#ifdef _DEBUG
+    return _realloc_dbg(p, n, _NORMAL_BLOCK, f, l);
+#else
+    return realloc(p, n);
+#endif
+}
+
+static void
+bcrypt_free(void *p, const char *f, int l) {
+#ifdef _DEBUG
+    _free_dbg(p, _NORMAL_BLOCK);
+#else
+    free(p);
+#endif
+}
+
 namespace bcrypt_testing {
 
     // ----------------------------------------------------------------------------
@@ -130,7 +159,14 @@ namespace bcrypt_testing {
             _CrtMemCheckpoint(&start_mem_);
 
             // Initialize OpenSSL
+            OSSL_ASSERT_EQ(1, CRYPTO_set_mem_functions(
+                bcrypt_malloc, bcrypt_realloc, bcrypt_free));
             OSSL_ASSERT_EQ(1, OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL));
+
+            std::cout << "--- Running with OpenSSL version: " <<
+                OpenSSL_version(OPENSSL_VERSION) << std::endl;
+            // std::cout << "--- Compiler flags used:" <<
+            //     OpenSSL_version(OPENSSL_CFLAGS) << std::endl;
         }
 
         // Override this to define how to tear down the environment.
@@ -152,21 +188,27 @@ namespace bcrypt_testing {
                 _CrtMemCheckpoint(&end_mem);
                 // Check for memory leaks
                 if (_CrtMemDifference(&diff_mem, &start_mem_, &end_mem)) {
-                    // Workaround for known Google Test 1.8.1 result
-                    size_t known_sizes[_MAX_BLOCKS] = { 0, 8, 256, 0, 0 };
-                    if (std::equal(std::begin(known_sizes), std::end(known_sizes),
+                    // Workaround for known Google Test 1.8.1.3 result
+                    size_t known_sizes_1[_MAX_BLOCKS] = { 0, 8, 256, 0, 0 }; // Ossl Debug
+                    size_t known_sizes_2[_MAX_BLOCKS] = { 0, 8, 0, 0, 0 }; // Ossl Release
+                    if (std::equal(std::begin(known_sizes_1), std::end(known_sizes_1),
                         std::begin(diff_mem.lSizes)))
                     {
                         std::cout
-                            << "--- Ignoring known false positive memleak from gtest 1.8.1"
-                            << std::endl;
-                    }
-                    else {
+                            << "--- Ignoring known false positive memleak from gtest 1.8.1.3"
+                            << std::endl << "--- (8 normal bytes, 256 CRT bytes)" << std::endl;
+                    } else if (std::equal(std::begin(known_sizes_2), std::end(known_sizes_2),
+                        std::begin(diff_mem.lSizes)))
+                    {
+                        std::cout
+                            << "--- Ignoring known false positive memleak from gtest 1.8.1.3"
+                            << std::endl << "--- (8 normal bytes)" << std::endl;
+                    } else {
                         _CrtMemDumpAllObjectsSince(&start_mem_);
                         std::cout
-                            << "--- Unexpected memory leak, probably coming from gtest"
+                            << "--- Unexpected memory leak"
                             << std::endl;
-                        /* FAIL(); */
+                        FAIL();
                     }
                 }
             }
@@ -283,6 +325,7 @@ int main(
     int argc,
     char **argv)
 {
+    //_crtBreakAlloc = 8191;
     ::testing::InitGoogleTest(&argc, argv);
     ::testing::AddGlobalTestEnvironment(new bcrypt_testing::Environment);
     return RUN_ALL_TESTS();
