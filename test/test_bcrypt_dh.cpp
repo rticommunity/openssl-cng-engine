@@ -137,21 +137,13 @@ static const DhGenerateParams dh_generate_params[] = {
     // nid
     NID_ffdhe6144,
     // is_supported
-#ifndef B_DO_OSSL_BUILTIN
     false
-#else
-    true // OpenSsL actually does support this
-#endif
 },
 {
     // nid
     NID_ffdhe8192,
     // is_supported
-#ifndef B_DO_OSSL_BUILTIN
     false
-#else
-    true // OpenSsL actually does support this
-#endif
 }
 #if 0
 ,
@@ -176,7 +168,8 @@ public:
 
         // Initialize members from parameters
         nid_ = params.nid;
-        is_supported_ = params.is_supported;
+        // All parameters are supported by the builtin engine
+        is_supported_ = params.is_supported || doing_builtin();
     }
 
     int nid_;
@@ -409,8 +402,8 @@ struct DhParams {
 };
 
 static const DhParams dh_params[] = {
-// It seems that BCrypt only supports generator 2, so only test this Ossl
-#if B_DO_OSSL_BUILTIN
+// It seems that BCrypt only supports generator 2, keep this around for reference for now
+#if 0
 {
     // params
     {
@@ -527,7 +520,7 @@ static const DhParams dh_params[] = {
     "2c6c91458ac67333dc8091161e547d5756d39bcbc2df274bc3c868d876291eac"
     "3dd407aabfb837cdac7fde223ffe6ee8c1a66a6c76e9a0e62f6eccdf869ce20d"
 },
-#endif  // B_DO_OSSL_BUILTIN
+#endif  // 0
 {
     // params
     {

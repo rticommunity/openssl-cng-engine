@@ -739,10 +739,10 @@ TEST_P(EcdsaVerifyTest, Verify)
         // Check if any error messages have been ignored
         // Note: for some reason, the builtin OpenSSL implementation
         //   does not set any error values in this case.
-#ifndef B_DO_OSSL_BUILTIN
-        OSSL_EXPECT_NE(bcrypt_testing::GetOpenSSLErrors(), "")
-            << "Expected to find OpenSSL error string";
-#endif
+        if (!doing_builtin()) {
+            OSSL_EXPECT_NE(bcrypt_testing::GetOpenSSLErrors(), "")
+                << "Expected to find OpenSSL error string";
+        }
     }
 }
 
