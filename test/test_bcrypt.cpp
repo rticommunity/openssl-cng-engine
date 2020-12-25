@@ -32,7 +32,7 @@
 #pragma comment(lib, "libcrypto.lib")
 
 // Make sure the same memory functions are used everywhere
-// This avoids issues when mixing debug release OpenSSL libs
+// See CRYPTO_set_mem_functions() invocation further down 
 static void *
 bcrypt_malloc(size_t n, const char *f, int l) {
 #ifdef _DEBUG
@@ -189,21 +189,15 @@ namespace bcrypt_testing {
                 // Check for memory leaks
                 if (_CrtMemDifference(&diff_mem, &start_mem_, &end_mem)) {
                     // Workaround for known Google Test 1.8.1.3 result
-                    size_t known_sizes_1[_MAX_BLOCKS] = { 0, 8, 256, 0, 0 }; // Ossl Debug
-                    size_t known_sizes_2[_MAX_BLOCKS] = { 0, 8, 0, 0, 0 }; // Ossl Release
-                    if (std::equal(std::begin(known_sizes_1), std::end(known_sizes_1),
-                        std::begin(diff_mem.lSizes)))
-                    {
+                    size_t ptr_size = sizeof(void *);
+                    if ((diff_mem.lCounts[_NORMAL_BLOCK] == 1) &&
+                        diff_mem.lSizes[_NORMAL_BLOCK] == ptr_size) {
                         std::cout
-                            << "--- Ignoring known false positive memleak from gtest 1.8.1.3"
-                            << std::endl << "--- (8 normal bytes, 256 CRT bytes)" << std::endl;
-                    } else if (std::equal(std::begin(known_sizes_2), std::end(known_sizes_2),
-                        std::begin(diff_mem.lSizes)))
-                    {
-                        std::cout
-                            << "--- Ignoring known false positive memleak from gtest 1.8.1.3"
-                            << std::endl << "--- (8 normal bytes)" << std::endl;
-                    } else {
+                            << "--- Ignoring known unfreed memory for gtest 1.8.1.3"
+                            << std::endl << "--- (1 normal block of " << ptr_size << " bytes)"
+                            << std::endl;
+                    }
+                    else {
                         _CrtMemDumpAllObjectsSince(&start_mem_);
                         std::cout
                             << "--- Unexpected memory leak"
@@ -325,7 +319,6 @@ int main(
     int argc,
     char **argv)
 {
-    //_crtBreakAlloc = 8191;
     ::testing::InitGoogleTest(&argc, argv);
     ::testing::AddGlobalTestEnvironment(new bcrypt_testing::Environment);
     return RUN_ALL_TESTS();

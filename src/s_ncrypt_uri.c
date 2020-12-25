@@ -20,7 +20,12 @@
 #include "s_ncrypt_uri_lcl.h"
 
 /* Implementation */
+/* suppress warning about _snprintf_s not getting inlined */
+#pragma warning(push)
+#pragma warning(disable : 4710)
 #include "c_cmn.h"
+#pragma warning(pop)
+
 #include "s_ncrypt.h"
 #include "s_ncrypt_err.h"
 
