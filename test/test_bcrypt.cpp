@@ -136,8 +136,9 @@ namespace bcrypt_testing {
             if ((res == 0) && (len > 0))
             {
                 S_doing_builtin = true;
-                std::cout << "Warning: env var GTEST_B_USE_OSSL_BUILTIN is set," << std::endl;
-                std::cout << "         using OpenSSL builtin engine" << std::endl;
+                std::cout <<
+                    "Warning: env var GTEST_B_USE_OSSL_BUILTIN is set," << std::endl <<
+                    "         using OpenSSL builtin engine" << std::endl;
             }
         }
         ~Environment() override {}

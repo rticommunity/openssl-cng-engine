@@ -206,6 +206,23 @@ void Test::TearDownTestCase()
         << "OpenSSL errors have been ignored";
 }
 
+std::string Test::CertStoreUriFromEnv(const std::string &var_name)
+{
+    // Default value if no environment setting is found
+    std::string result = "cert:/LocalMachine/My/";
+    char varval[_MAX_PATH];
+    size_t len;
+    errno_t res = getenv_s<sizeof(varval)>(&len, varval, var_name.c_str());
+    if ((res == 0) && (len > 0))
+    {
+        result = varval;
+        std::cout <<
+            "Warning: env var "<< var_name << " is set," << std::endl <<
+            "         using " << result << std::endl;
+    }
+    return result;
+}
+
 } // namespace ncrypt_testing
 
 // ----------------------------------------------------------------------------

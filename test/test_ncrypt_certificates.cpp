@@ -32,9 +32,10 @@ protected:
     {
         std::list<std::string> cert_ids;
         // Open the store
-        const char* store_name = GetParam();
+        const char *store_var = GetParam();
+        std::string store_name = CertStoreUriFromEnv(store_var);
         ncrypt_testing::unique_OSSL_STORE_CTX ctx(OSSL_STORE_open(
-            store_name, NULL, NULL, NULL, NULL));
+            store_name.c_str(), NULL, NULL, NULL, NULL));
         OSSL_ASSERT_TRUE(ctx);
         // Only interested in certificates here
         OSSL_ASSERT_EQ(1, OSSL_STORE_expect(ctx.get(), OSSL_STORE_INFO_CERT));
@@ -58,6 +59,8 @@ protected:
                 OSSL_ASSERT_EQ(1, OSSL_STORE_eof(ctx.get()));
             }
         } while (OSSL_STORE_eof(ctx.get()) != 1);
+        // Fail if we did not find any usable certificates
+        ASSERT_NE(0, cert_ids.size());
 
         for (std::string cert_id : cert_ids) {
             // Open the store
@@ -98,9 +101,10 @@ TEST_P(CertificatesTest, Verify)
         OSSL_ASSERT_EQ(1, X509_STORE_CTX_init(x509_store_ctx.get(),
             x509_store.get(), cert.get(), NULL));
         // Open the store for verification
-        const char* store_name = GetParam();
+        const char *store_var = GetParam();
+        std::string store_name = CertStoreUriFromEnv(store_var);
         ncrypt_testing::unique_OSSL_STORE_CTX ctx(OSSL_STORE_open(
-            store_name, NULL, NULL, NULL, NULL));
+            store_name.c_str(), NULL, NULL, NULL, NULL));
         OSSL_ASSERT_TRUE(ctx);
         // Do the actual verififcation
         int ctrl_result;
@@ -111,5 +115,4 @@ TEST_P(CertificatesTest, Verify)
 }
 
 INSTANTIATE_TEST_CASE_P(CertificatesTests, CertificatesTest,
-    testing::Values("cert:/CurrentUser/My/"));
-
+    testing::Values("GTEST_N_CERT_STORE_URI"));

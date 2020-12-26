@@ -428,7 +428,7 @@ IMPLEMENT_DYNAMIC_BIND_FN(ncrypt_store_bind_helper)
  * - External helper function for cert verification - *
  * -------------------------------------------------- */
 
-const char *STORE_URI = "cert:/CurrentUser/My/";
+const char *STORE_URI = "cert:/LocalMachine/My/";
 
 OPENSSL_EXPORT
 int

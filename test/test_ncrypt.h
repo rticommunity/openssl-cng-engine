@@ -28,10 +28,8 @@ public:
     // These have to be public because this class is used in TEST_P
     static void SetUpTestCase();
     static void TearDownTestCase();
+    // Configured name for cert store to use
+    std::string CertStoreUriFromEnv(const std::string &var_name);
 };
-
-// Convenience macros, use them for OpenSSL test results only, when deriving
-// from the above test fixture
-// Add more if you need them...
 
 } // namespace ncrypt_testing
