@@ -32,9 +32,10 @@ protected:
     {
         std::list<std::string> pkey_ids;
         // Open the store
-        const char* store_name = GetParam();
+        const char *store_var = GetParam();
+        std::string store_name = CertStoreUriFromEnv(store_var);
         ncrypt_testing::unique_OSSL_STORE_CTX ctx(OSSL_STORE_open(
-            store_name, NULL, NULL, NULL, NULL));
+            store_name.c_str(), NULL, NULL, NULL, NULL));
         OSSL_ASSERT_TRUE(ctx);
         // Only interested in keys here
         OSSL_ASSERT_EQ(1, OSSL_STORE_expect(ctx.get(), OSSL_STORE_INFO_PKEY));
@@ -59,6 +60,8 @@ protected:
                 OSSL_ASSERT_EQ(1, OSSL_STORE_eof(ctx.get()));
             }
         } while (OSSL_STORE_eof(ctx.get()) != 1);
+        // Fail if we did not find any usable keys
+        ASSERT_NE(0, pkey_ids.size());
 
         // Got the list of all key names, lets load them all
         for (std::string pkey_id : pkey_ids) {
@@ -122,4 +125,4 @@ TEST_P(KeysTest, SignVerify)
 }
 
 INSTANTIATE_TEST_CASE_P(KeysTests, KeysTest,
-    testing::Values("cert:/CurrentUser/My/"));
+    testing::Values("GTEST_N_KEY_STORE_URI"));

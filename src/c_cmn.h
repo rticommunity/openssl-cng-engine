@@ -18,18 +18,16 @@
 
 /* Windows-specific includes and definitions */
 #include "c_cmn_dbg.h"
-//#include "c_cmn_ossl.h"
+#include "c_cmn_ossl.h"
 #include "c_cmn_win.h"
 
 #define CMN_UNUSED(p) UNREFERENCED_PARAMETER(p)
 
-#define CMN_malloc(n)             malloc(n)
-#define CMN_free(p)               free(p)
-#define CMN_memcpy(dst, src, n)   memcpy((dst), (src), (n))
-#define CMN_memset(dst, val, n)   memset((dst), (val), (n))
-#define CMN_strdup(str)           _strdup(str)
-#define CMN_strnlen(str, n)       strnlen_s(str, n)
-#define CMN_strncpy(dst, src, n)  strncpy_s(dst, n + 1, src, n)
-#define CMN_wstrdup(wstr)         _wcsdup(wstr)
-#define CMN_wstrnlen(wstr, n)     wcsnlen_s(wstr, n)
-#define CMN_wstrncpy(dst, src, n) wcsncpy_s(dst, n + 1, src, n)
+#define CMN_malloc(n)            OPENSSL_malloc(n)
+#define CMN_realloc(p, n)        OPENSSL_realloc(p, n)
+#define CMN_free(p)              OPENSSL_free(p)
+#define CMN_memcpy(dst, src, n)  memcpy((dst), (src), (n))
+#define CMN_memset(dst, val, n)  memset((dst), (val), (n))
+#define CMN_strdup(str)          OPENSSL_strdup(str)
+#define CMN_strnlen(str, n)      strnlen_s(str, n)
+#define CMN_strncpy(dst, src, n) strncpy_s(dst, n + 1, src, n)

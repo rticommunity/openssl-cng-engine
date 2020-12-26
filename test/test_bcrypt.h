@@ -18,10 +18,6 @@
 #include "gtest/gtest.h"
 #include <optional>
 
-// Define this value if you want to run with the builtin
-//   OpenSSL EVP implementation (as opposed to the CNG Engine)
-//#define B_DO_OSSL_BUILTIN
-
 namespace bcrypt_testing {
 
 // Test fixture that includes memory leak detection and OpenSSL init/deinit
@@ -33,6 +29,8 @@ public:
     // These have to be public because this class is used in TEST_P
     static void SetUpTestCase();
     static void TearDownTestCase();
+protected:
+    bool doing_builtin();
 };
 
 // Crypto types and convenience functions

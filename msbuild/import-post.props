@@ -5,13 +5,14 @@
   </PropertyGroup>
   <Target Name="CopyArtifacts" Condition=" '$(ConfigurationType)' != 'StaticLibrary' ">
     <PropertyGroup>
+	  <LibCryptoBase>$(OpenSSLDir)bin\libcrypto-1_1</LibCryptoBase>
       <LibCryptoSuffix Condition=" '$(Platform)'=='x64' ">-x64</LibCryptoSuffix>
     </PropertyGroup>
     <ItemGroup>
       <Artifacts Include="$(OutDir)$(TargetName)$(TargetExt)" />
-      <OsslArtifacts Include="$(OpenSSLDir)bin\libcrypto-1_1$(LibCryptoSuffix).dll" />
+      <OsslArtifacts Include="$(LibCryptoBase)$(LibCryptoSuffix).dll" />
       <Artifacts Include="$(OutDir)$(TargetName).pdb" Condition=" '$(Configuration)'=='Debug' " />
-      <OsslArtifacts Include="$(OpenSSLDir)bin\libcrypto-1_1$(LibCryptoSuffix).pdb" Condition=" '$(Configuration)'=='Debug' " />
+      <OsslArtifacts Include="$(LibCryptoBase)$(LibCryptoSuffix).pdb" Condition=" '$(Configuration)'=='Debug' And Exists('$(LibCryptoBase)$(LibCryptoSuffix).pdb') " />
     </ItemGroup>
     <Copy SourceFiles="@(OsslArtifacts)" SkipUnchangedFiles="true" DestinationFolder="$(OutDir)" />
     <Copy SourceFiles="@(Artifacts);@(OsslArtifacts)" SkipUnchangedFiles="true" DestinationFolder="$(OutDir)..\" />

@@ -1,0 +1,27 @@
+version: '{build}-{branch}'
+image:
+- Visual Studio 2019
+- Visual Studio 2017
+build_script:
+- cmd: msbuild\msbuild-single.bat
+test_script:
+- cmd: >-
+    IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" SET VNAME=v142
+
+    IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" SET VNAME=v141
+
+    bld\x64-Release-%VNAME%\gtest-engine-bcrypt.exe
+
+    bld\x64-Release-%VNAME%\gtest-engine-ncrypt.exe
+
+    bld\x86-Release-%VNAME%\gtest-engine-bcrypt.exe
+
+    bld\x86-Release-%VNAME%\gtest-engine-ncrypt.exe
+
+    VSTest.Console.exe --Logger:AppVeyor --TestAdapterPath:packages\GoogleTestAdapter.0.18.0\build\_common bld\x64-Debug-%VNAME%\gtest-engine-bcrypt.exe
+
+    VSTest.Console.exe --Logger:AppVeyor --TestAdapterPath:packages\GoogleTestAdapter.0.18.0\build\_common bld\x64-Debug-%VNAME%\gtest-engine-ncrypt.exe
+
+    VSTest.Console.exe --Logger:AppVeyor --TestAdapterPath:packages\GoogleTestAdapter.0.18.0\build\_common bld\x86-Debug-%VNAME%\gtest-engine-bcrypt.exe
+
+    VSTest.Console.exe --Logger:AppVeyor --TestAdapterPath:packages\GoogleTestAdapter.0.18.0\build\_common bld\x86-Debug-%VNAME%\gtest-engine-ncrypt.exe

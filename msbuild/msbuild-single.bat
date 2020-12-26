@@ -161,13 +161,13 @@ GOTO failure
 :vs_version_found
 REM Find the MsBuild initialization script
 FOR /F "usebackq delims=" %%I IN (`"%VS_WHERE%" -property installationPath -version [%VS_LO%^,%VS_HI%^)`) DO (
-  IF EXIST %%I\Common7\Tools\VsMSBuildCmd.bat (
-    SET VS_MSBUILDCMD=%%I\Common7\Tools\VsMSBuildCmd.bat
+  IF EXIST %%I\Common7\Tools\VsDevCmd.bat (
+    SET VS_DEVCMD=%%I\Common7\Tools\VsDevCmd.bat
 	GOTO msbuild_found
   )
 )
 
-IF [%VS_MSBUILDCMD%]==[] (
+IF [%VS_DEVCMD%]==[] (
   ECHO.%FLR%
   ECHO.Can not figure out where %VAL%%VS_VERSION%%FLR% development environment is located%NRM%
   CALL :usage
@@ -176,13 +176,20 @@ IF [%VS_MSBUILDCMD%]==[] (
 
 :msbuild_found
 
-ECHO.%VS_MSBUILDCMD% | findstr /C:"2019">nul && (
+ECHO.%VS_DEVCMD% | FINDSTR /C:"2019">nul && (
   SET VS_VERSION_USED=VS2019
   SET TOOLSET_VERSION=v142
-) || ECHO.%VS_MSBUILDCMD% | findstr /C:"2017">nul && (
+  SET CLANGF_CMD=clang-format
+  SET CLANGF_DRYRUN_OPTIONS=--dry-run --Werror
+) || ECHO.%VS_DEVCMD% | FINDSTR /C:"2017">nul && (
   SET VS_VERSION_USED=VS2017
   SET TOOLSET_VERSION=v141
-) || ECHO.%FLR%Warning: not sure which toolversion is being used...%NRM%
+  SET NUGET_CMD=nuget
+) || (
+  ECHO.%FLR%Warning: not sure which toolversion is being used%NRM%
+  (CALL )
+)
+
 SET VS_INFO=%VS_VERSION_USED% (%TOOLSET_VERSION%)
 
 SET LOG_DIR=log
@@ -198,27 +205,60 @@ ECHO.Log files      : %LOG_DIR%^\^<CPU^>-^<Config^>%BLD_SUF%-^<Level^>.log
 ECHO.Build dir      : bld^\^<CPU^>-^<Config^>%BLD_SUF%
 ECHO.%NRM%
 
-CALL "%VS_MSBUILDCMD%"
+CALL "%VS_DEVCMD%"
 
 ECHO.%ACT%
+:: Newer versions of clang-format can conveniently check for formatting violations
+:: For older versions, do not bother even trying some clumsy workaround :-)
+IF DEFINED CLANGF_CMD (
+  WHERE %CLANGF_CMD% 2>nul >nul && (
+    ECHO.Verifying code formatting
+    %CLANGF_CMD% %CLANGF_DRYRUN_OPTIONS% src\*.c src\*.h || GOTO :failure
+  ) || (
+    ECHO.%FLR%Warning: not verifying code formatting -- can not execute %CLANGF_CMD%%ACT%
+	(CALL )
+  )
+) ELSE (
+  ECHO.%FLR%Warning: not verifying code formatting -- need clang-format v10+%ACT%
+)
+
+:: Older versions of MSBuild do not support the convenient nuget restore options
+:: In that case, try to execute the nuget command
+IF DEFINED NUGET_CMD (
+  WHERE %NUGET_CMD% 2>nul >nul && (
+    ECHO.Restoring packages using nuget, if needed
+    %NUGET_CMD% restore -PackagesDirectory packages -Verbosity quiet msbuild\packages.config
+  ) || (
+    ECHO.%FLR%Warning: can not execute %NUGET_CMD% -- build may fail%ACT%
+	(CALL )
+  )
+)
+
 FOR %%C IN (Debug,Release) DO (
   FOR %%P IN (x86,x64) DO (
     ECHO.MSBuild-ing %%P^|%%C	into bld^\%%P-%%C%BLD_SUF%
-    MSBuild.exe                ^
-	  %VS_SOLUTION%            ^
-	  /p:Platform=%%P          ^
-	  /p:Configuration=%%C     ^
-	  %MSB_TARGET%             ^
-	  /verbosity:quiet /nologo ^
-	  /fl1 /flp1:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-errors.log;errorsonly       ^
-	  /fl2 /flp2:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-warnings.log;warningsonly   ^
-	  /fl3 /flp3:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-normal.log;verbosity=normal ^
- &REM /fl4 /flp4:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-detailed.log;verbosity=detailed
+    MSBuild.exe                            ^
+	  %VS_SOLUTION%                        ^
+	  %MSB_TARGET%                         ^
+	  -restore                             ^
+	  -property:Platform=%%P               ^
+	  -property:Configuration=%%C          ^
+	  -property:RestorePackagesConfig=true ^
+	  -verbosity:quiet                     ^
+	  -nologo                              ^
+	  -fl1 -flp1:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-errors.log;errorsonly       ^
+	  -fl2 -flp2:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-warnings.log;warningsonly   ^
+	  -fl3 -flp3:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-normal.log;verbosity=normal ^
+	  || GOTO :failure
   )
 )
 ECHO.%NRM%
 
+:: Note to self: the following can be added to the MSBuild command for detailed logging:
+:: -fl4 -flp4:logfile=%LOG_DIR%\%%P-%%C%BLD_SUF%-detailed.log;verbosity=detailed
+
 :done
+ECHO.Done
 POPD
 ENDLOCAL
 GOTO :eof
@@ -297,5 +337,5 @@ GOTO :eof
 
 :failure
 ECHO.%FLR%
-ECHO.Script failed, terminating now%NRM%
-PAUSE
+ECHO.Failure detected, terminating now%NRM%
+EXIT /B 1

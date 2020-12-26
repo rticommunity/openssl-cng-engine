@@ -19,6 +19,7 @@
 /* For detecting memory leaks in the case that _DEBUG has been defined */
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
+#include <stdio.h>
 #include <crtdbg.h>
 
 #include <algorithm>
@@ -29,6 +30,36 @@
 // We depend on the following openssl library,
 // but it is not specified in their header files
 #pragma comment(lib, "libcrypto.lib")
+
+
+// Make sure the same memory functions are used everywhere
+// See CRYPTO_set_mem_functions() invocation further down 
+static void *
+ncrypt_malloc(size_t n, const char *f, int l) {
+#ifdef _DEBUG
+    return _malloc_dbg(n, _NORMAL_BLOCK, f, l);
+#else
+    return malloc(n);
+#endif
+}
+
+static void *
+ncrypt_realloc(void *p, size_t n, const char *f, int l) {
+#ifdef _DEBUG
+    return _realloc_dbg(p, n, _NORMAL_BLOCK, f, l);
+#else
+    return realloc(p, n);
+#endif
+}
+
+static void
+ncrypt_free(void *p, const char *f, int l) {
+#ifdef _DEBUG
+    _free_dbg(p, _NORMAL_BLOCK);
+#else
+    free(p);
+#endif
+}
 
 namespace ncrypt_testing {
 
@@ -62,7 +93,14 @@ public:
         _CrtMemCheckpoint(&start_mem_);
 
         // Initialize OpenSSL
+        OSSL_ASSERT_EQ(1, CRYPTO_set_mem_functions(
+            ncrypt_malloc, ncrypt_realloc, ncrypt_free));
         OSSL_ASSERT_EQ(1, OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL));
+
+        std::cout << "--- Running with OpenSSL version: " <<
+            OpenSSL_version(OPENSSL_VERSION) << std::endl;
+        // std::cout << "--- Compiler flags used:" <<
+        //     OpenSSL_version(OPENSSL_CFLAGS) << std::endl;
     }
 
     // Override this to define how to tear down the environment.
@@ -84,17 +122,19 @@ public:
             _CrtMemCheckpoint(&end_mem);
             // Check for memory leaks
             if (_CrtMemDifference(&diff_mem, &start_mem_, &end_mem)) {
-                // Workaround for known Google Test 1.8.1 result
-                size_t known_sizes[_MAX_BLOCKS] = { 0, 8, 2324, 0, 0 };
-                if (std::equal(std::begin(known_sizes), std::end(known_sizes),
-                    std::begin(diff_mem.lSizes)))
-                {
+                // Workaround for known Google Test 1.8.1.3 result
+                size_t ptr_size = sizeof(void *);
+                if ((diff_mem.lCounts[_NORMAL_BLOCK] == 1) &&
+                    diff_mem.lSizes[_NORMAL_BLOCK] == ptr_size) {
                     std::cout
-                        << "--- Ignoring known false positive memleak from gtest 1.8.1"
+                        << "--- Ignoring known unfreed memory for gtest 1.8.1.3"
+                        << std::endl << "--- (1 normal block of " << ptr_size << " bytes)"
                         << std::endl;
-                }
-                else {
+                } else {
                     _CrtMemDumpAllObjectsSince(&start_mem_);
+                    std::cout
+                        << "--- Unexpected memory leak"
+                        << std::endl;
                     FAIL();
                 }
             }
@@ -164,6 +204,23 @@ void Test::TearDownTestCase()
     // Check if any error messages have been ignored
     OSSL_EXPECT_EQ(ncrypt_testing::GetOpenSSLErrors(), "")
         << "OpenSSL errors have been ignored";
+}
+
+std::string Test::CertStoreUriFromEnv(const std::string &var_name)
+{
+    // Default value if no environment setting is found
+    std::string result = "cert:/LocalMachine/My/";
+    char varval[_MAX_PATH];
+    size_t len;
+    errno_t res = getenv_s<sizeof(varval)>(&len, varval, var_name.c_str());
+    if ((res == 0) && (len > 0))
+    {
+        result = varval;
+        std::cout <<
+            "Warning: env var "<< var_name << " is set," << std::endl <<
+            "         using " << result << std::endl;
+    }
+    return result;
 }
 
 } // namespace ncrypt_testing
