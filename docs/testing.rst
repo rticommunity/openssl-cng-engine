@@ -7,4 +7,4 @@ Testing the build
    :maxdepth: 1
    :name: toc-testing
 
-   google_tests
+   testing/google_tests

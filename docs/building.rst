@@ -7,6 +7,6 @@ Building the solution
    :maxdepth: 1
    :name: toc-building
 
-   solutions
-   projects
-   scripts
+   building/solutions
+   building/projects
+   building/scripts
