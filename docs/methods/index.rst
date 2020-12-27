@@ -1,5 +1,5 @@
 Method details
-===
+==============
 
 Method details
 
