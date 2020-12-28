@@ -2,4 +2,6 @@
 /log
 /packages
 /.vs
+/.vscode
 /TestResults
+
