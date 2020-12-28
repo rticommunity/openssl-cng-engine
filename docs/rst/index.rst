@@ -3,7 +3,7 @@ RTI's OpenSSL CNG Engine
 
 .. warning::
 
-   This documentation is still a work in progress
+   This documentation is work in progress
 
 
 This manual is organized into the following sections:
@@ -13,17 +13,10 @@ This manual is organized into the following sections:
    :name: toc-main
 
    about
-   buiding
+   building
    testing
    using
    algorithms
    store
    limitations
    process
-
-.. Indices and tables
-.. ------------------
-..
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
