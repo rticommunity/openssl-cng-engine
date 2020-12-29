@@ -7,15 +7,15 @@ Welcome to RTI's OpenSSL CNG Engine
 
    This documentation is work in progress
 
-This project implements an engine for leveraging Windows' `Cryptography API: Next Generation <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-portal>`_ (CNG) with the `OpenSSL <https://www.openssl.org>`_ crypto suite. It supports CNG's `Cryptographic Primitives <https://docs.microsoft.com/en-us/windows/win32/seccng/cryptographic-primitives>`_ as well as some of its `Key Storage and Retrieval <https://docs.microsoft.com/en-us/windows/win32/seccng/key-storage-and-retrieval>`_ and original `CryptoAPI <https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>`_ (CAPI) functionality for certificates.
+This project implements an engine for leveraging Windows' `Cryptography API: Next Generation <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-portal>`_ (CNG) with the `OpenSSL <https://www.openssl.org>`_ crypto suite, branch ``1.1.1``.
 
-The OpenSSL CNG Engine is hosted `on Github as the openssl-cng-engine project <https://github.com/rticommunity/openssl-cng-engine>`_. It is brought to you by `Real-Time Innovations <https://www.rti.com>`_ under the `Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_. For questions related to using this engine in conjunction with RTI's Connext DDS Secure, please contact .
+The OpenSSL CNG Engine source code is hosted `on Github as the openssl-cng-engine project <https://github.com/rticommunity/openssl-cng-engine>`_. It is brought to you by `Real-Time Innovations <https://www.rti.com>`_ under the `Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_. For questions related to using this engine in conjunction with RTI's Connext DDS Secure product, please contact .
 
 
-Finding yor way
----------------
+Finding your way
+----------------
 
-For a high level introduction to this project, check out section :ref:`about_rst`, which identifies its purpose and outlines the different components involved.
+For a high level introduction to this project, check out section :ref:`about_rst`, which identifies its functionality and outlines the different components involved.
 
 Detailed build instructions as well as descriptions of the different build system elements are given in section :ref:`building_rst`. This includes an overview of the platform and toolchain components needed as well as their different versions that the project is being tested with.
 
