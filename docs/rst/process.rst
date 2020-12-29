@@ -1,3 +1,5 @@
+.. _process_rst:
+
 Development process
 ===================
 

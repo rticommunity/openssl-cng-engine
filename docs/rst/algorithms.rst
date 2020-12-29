@@ -1,3 +1,5 @@
+.. _algorithms_rst:
+
 BCrypt EVP algorithms
 =====================
 
@@ -9,6 +11,7 @@ BCrypt EVP algorithms
 
    algorithms/aes_gcm
    algorithms/dh
+   algorithms/dsa
    algorithms/ecdh
    algorithms/ecdsa
    algorithms/hmac
