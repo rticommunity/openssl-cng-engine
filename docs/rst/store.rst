@@ -1,4 +1,6 @@
-NCrypt Store details
+.. _store_rst:
+
+NCrypt STORE details
 ====================
 
 NCrypt Store details

@@ -1,3 +1,5 @@
+.. _using_rst:
+
 Using the engine
 ================
 
