@@ -2,6 +2,10 @@ import os
 import sys
 import sphinx_rtd_theme
 
+extensions = [
+    'sphinx_rtd_theme',
+]
+
 project = 'OpenSSL CNG Engine'
 copyright = '2020 Real-Time Innovations, Inc. (RTI)'
 

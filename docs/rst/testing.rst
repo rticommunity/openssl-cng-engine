@@ -1,3 +1,5 @@
+.. _testing_rst:
+
 Testing the build
 =================
 

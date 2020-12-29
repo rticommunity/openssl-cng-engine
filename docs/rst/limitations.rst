@@ -1,3 +1,5 @@
+.. _limitations_rst:
+
 Known limitations
 =================
 
