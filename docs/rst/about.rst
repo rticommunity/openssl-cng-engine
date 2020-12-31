@@ -16,7 +16,7 @@ Functionality provided
 This engine actually consists of two different components, indicated for short here as EVP and STORE.
 
 EVP (envelope)
-**************
+******************
 
 The first component is a "traditional" `engine <https://github.com/openssl/openssl/blob/OpenSSL_1_1_1i/README.ENGINE>`_ that redirects `the EVP high-level cryptographic functions <https://www.openssl.org/docs/man1.1.1/man7/evp.html>`_ to their equivalent algorithms implemented by `CNG Cryptographic Primitive Functions <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-cryptographic-primitive-functions>`_. These functions are exposed via the ``bcrypt.h`` header file in the Windows SDK, and provided by the ``Bcrypt.dll`` library. Therefore, the associated naming convention for the CNG Engine is to use ``bcrypt`` in project names, like ``engine-bcrypt`` or ``lib-evp-bcrypt``.
 
@@ -27,31 +27,31 @@ The first component is a "traditional" `engine <https://github.com/openssl/opens
    * - Method
      - Description
      - Remarks
-   * - AES-GCM
+   * - ``AES-GCM``
      - Authenticated Encryption with Authenticated Data (AEAD)
-     - 256 bits key
-   * - DH
+     - 128, 192 or 256 bits key
+   * - ``DH``
      - Diffie-Hellman shared secret agreement
-     -
-   * - DSA
+     - 512 bits ≤ key size ≤ 4096 bits
+   * - ``DSA``
      - Digital Signature Algorithm
      -
-   * - ECDH
+   * - ``ECDH``
      - Elliptical Curve DH
      - P-256, P-384 and P-521
-   * - ECDSA
+   * - ``ECDSA``
      - Elliptical Curve DSA
      - P-256, P-384 and P-521
-   * - HMAC-SHA
+   * - ``HMAC-SHA``
      - Hash-based Message Authentication Code with SHA hash
      - With the SHAs mentioned below 
-   * - RNG
+   * - ``RNG``
      - Random Number Generator
      -
-   * - RSA
+   * - ``RSA``
      - RSA public key algorithms
-     - Encrypt/Decrypt and Sign/Verify
-   * - SHA
+     - 512 bits ≤ key size ≤ 16384 bits
+   * - ``SHA``
      - Secure Hash Algorithm
      - SHA-1, SHA-256, SHA-384 and SHA-512
 
@@ -60,8 +60,8 @@ For a detailed overview of the different algorithms supported, see section :ref:
 Note that cryptographic key material in the EVP engine is ephemeral, generated at runtime with the help of the random number generator.
 
 
-STORE
-*****
+STORE (ossl_store)
+**********************
 
 The second component is CNG-based implementation of an `OpenSSL STORE <https://www.openssl.org/docs/man1.1.1/man7/ossl_store.html>`_. The store component currently supports enumerating over, addressing and using public key certificates and (private) keys. For that, the loader leverages, among others, `CNG Key Storage Functsion <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-key-storage-functions>`_. These functions are exposed via the ``ncrypt.h`` header file in the Windows SDK, and provided by the ``Ncrypt.dll`` library. Therefore, the associated naming convention for the CNG Engine is to use ``ncrypt`` in project names, like ``engine-ncrypt`` or ``lib-store-ncrypt``. Additionally, it leverages `functions to interact with the Certificate Store <https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>`_.
 

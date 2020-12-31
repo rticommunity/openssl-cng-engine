@@ -37,7 +37,6 @@ Table of Contents
 
 .. toctree::
    :maxdepth: 2
-   :name: toc-main
 
    about
    building
