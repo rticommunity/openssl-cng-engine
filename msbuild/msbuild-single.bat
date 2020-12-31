@@ -16,7 +16,16 @@
 
 SETLOCAL
 
-call :set_colors
+CALL :set_colors
+
+SET TARGET_DEFAULT=DEFAULT
+SET SDK_DEFAULT=DEFAULT
+SET VS_DEFAULT=DEFAULT
+
+IF /I "%~1"=="Help" (
+  CALL :usage
+  GOTO done
+)
 
 ECHO.%BSC%
 ECHO.Running script %SCR%%~n0%BSC% invoked with:
@@ -27,10 +36,6 @@ ECHO.  vs_version = %VAL%%3%BSC%%NRM%
 SET SCRIPT_DIR=%~dp0
 SET BSCE_DIR=%SCRIPT_DIR%\..
 PUSHD "%BSCE_DIR%"
-
-SET TARGET_DEFAULT=DEFAULT
-SET SDK_DEFAULT=DEFAULT
-SET VS_DEFAULT=DEFAULT
 
 SET VS_WHERE=%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe
 IF NOT EXIST "%VS_WHERE%" (

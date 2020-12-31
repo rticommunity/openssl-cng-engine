@@ -1,7 +1,7 @@
 .. _algorithms_rst:
 
 BCrypt EVP algorithms
-=====================
+=============================
 
 BCrypt EVP algorithms
 
