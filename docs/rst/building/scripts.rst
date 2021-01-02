@@ -21,6 +21,39 @@ This script executes the following steps:
 * Restores any NuGet packages needed (explicitly, using NuGet, or implicitly, using MSBuild)
 * Runs MSBuild for the Debug and Release configurations, both for x86 and x64 platforms
 
+The MSBuild commands executed by this script contain options for writing log files to the ``log`` subdirectory. The exact locations of these files, as well as the output binaries, is printed when the script is run. This is illustrated by the following example run:
+
+.. code-block:: none
+
+    >msbuild\msbuild-single.bat
+
+    Running script msbuild-single invoked with:
+    target =
+    sdk_version =
+    vs_version =
+
+    MSBuild target :
+    SDK info       : latest installed
+    VS version     : VS2019 (v142)
+    VS solution    : openssl-cng-engine.sln
+    Log files      : log\<CPU>-<Config>-v142-<Level>.log
+    Build dir      : bld\<CPU>-<Config>-v142
+
+    **********************************************************************
+    ** Visual Studio 2019 Developer Command Prompt v16.8.3
+    ** Copyright (c) 2020 Microsoft Corporation
+    **********************************************************************
+
+    Verifying code formatting
+    MSBuild-ing x86|Debug   into bld\x86-Debug-v142
+    MSBuild-ing x64|Debug   into bld\x64-Debug-v142
+    MSBuild-ing x86|Release into bld\x86-Release-v142
+    MSBuild-ing x64|Release into bld\x64-Release-v142
+
+    Done
+
+To get more information about the available command line options for this script, execute it with ``help`` as its first argument, like so:
+
 .. code-block:: none
 
     >msbuild\msbuild-single.bat help
@@ -65,6 +98,7 @@ This script executes the following steps:
         inserted.
 
     Done
+
 
 ``msbuild-all.bat``
 *******************

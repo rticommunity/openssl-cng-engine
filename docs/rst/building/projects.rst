@@ -67,7 +67,7 @@ Shared configuration
 
 All projects mentioned above have certain settings in common. This is reflected by the fact that they all import the same MSBuild files called ``import-pre``, near the beginning of each project file, and ``import-post``, near the end. Both are located in the ``msbuild`` directory.
 
-The MSBuild documentation sometimes refer to such imported configuration files as `property files`, which is why their filenames are chosen to end with ``.props`` for this project. However, their contents in this case do not show up in the IDE's property manager window, due to the aformentioned limited implementation of MSBuild constructs in Visual Studio. As such, these actual property files are largely invisible, unless opened directly from the file system. Their resulting configuration settings do show up in the property pages though, as shown in this example:
+The MSBuild documentation sometimes refer to such imported configuration files as `property files`, which is why their filenames are chosen to end with ``.props`` for this project. However, their contents in this case do not show up in the IDE's property manager window, due to the aforementioned limited implementation of MSBuild constructs in Visual Studio. As such, these actual property files are largely invisible, unless opened directly from the file system. Their resulting configuration settings do show up in the property pages though, as shown in this example:
 
 |general_properties|
 
