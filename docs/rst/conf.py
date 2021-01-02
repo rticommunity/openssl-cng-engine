@@ -7,7 +7,7 @@ extensions = [
 ]
 
 project = 'OpenSSL CNG Engine'
-copyright = '2020 Real-Time Innovations, Inc. (RTI)'
+copyright = '2020-2021 Real-Time Innovations, Inc. (RTI)'
 
 highlight_language = 'c'
 html_theme = 'sphinx_rtd_theme'
