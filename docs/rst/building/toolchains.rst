@@ -3,16 +3,16 @@
 Toolchains
 ==========
 
-This section describes what toolchain components are needed to build the CNG Engine with Visual Studio version 2019 or 2017. Each components appears in its own subsection. Note that older versions of Visual Studio will not be able to build the test projects, since those leverage some C++17 features not supported by older compilers. The actual engine code is written and C and will therefore still be buildable by older VS versions. Such setups are not tested though, whereas building and running tests with VS2019 as well as VS2017 is part of the CI process.
+This section describes what toolchain components are needed to build the CNG Engine with Visual Studio version 2019 or 2017. Each components appears in its own subsection. Note that older versions of Visual Studio will not be able to build the test projects, since those leverage some C++17 features not supported by older compilers. The actual engine code is written and C and can therefore still be built by older VS versions. Such setups are not tested though, whereas building and running tests with VS2019 as well as VS2017 is part of the CI process.
 
 
-Using Visual Studion 2019
+Using Visual Studio 2019
 -------------------------
 
 The CNG Engine can be built with all editions of VS2019. To fully leverage the Google Test functionality, make sure to select the installation option for native Google Test integration. Also enable the Clang toolchain to fully leverage ClangFormat for code format checking.
 
 
-Using Visual Studion 2017
+Using Visual Studio 2017
 -------------------------
 
 The CNG Engine can be built with all editions of VS2017. To fully leverage the Google Test functionality, make sure to select the installation option for native Google Test integration. Compared to the newer version, VS2017 comes with fewer pre-installed components, or with versions that have less functionality. Therefore, `the nuget.exe CLI needs to be installed separately <https://docs.microsoft.com/en-us/nuget/consume-packages/package-restore#restore-using-the-nugetexe-cli>`_. Additionally, this VS version comes with an older ClangFormat which is not capable of running  dry-runs for detecting format compliance issues.
@@ -73,7 +73,7 @@ Whichever installation directory is used, the CNG Engine projects will try to fi
 GoogleTest components
 ---------------------
 
-The CNG Engine functional tests leverage `the GoogleTest C++ test framework <https://github.com/google/googletest>`_, currently version ``1.8.1.3``. This dependency is captured in the Visual Studio project files as well as the NuGet configuration. For the best IDE experience, please make sure to select the GoogleTest components as part of Visual Studio during the installation process. A dependency on `the GoogleTestAdapter <https://github.com/csoltenborn/GoogleTestAdapter>`_ (GTA) ``0.18.0`` is confgured as well.
+The CNG Engine functional tests leverage `the GoogleTest C++ test framework <https://github.com/google/googletest>`_, currently version ``1.8.1.3``. This dependency is captured in the Visual Studio project files as well as the NuGet configuration. For the best IDE experience, please make sure to select the GoogleTest components as part of Visual Studio during the installation process. A dependency on `the GoogleTestAdapter <https://github.com/csoltenborn/GoogleTestAdapter>`_ (GTA) ``0.18.0`` is configured as well.
 
 
 NuGet

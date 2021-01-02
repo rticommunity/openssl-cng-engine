@@ -1,5 +1,3 @@
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/rticommunity/openssl-cng-engine?branch=develop&svg=true&passingText=passing%20%F0%9F%A5%B3)](https://ci.appveyor.com/project/rticommunity/openssl-cng-engine/branch/develop)
-
 # Welcome to RTI's OpenSSL CNG Engine
 
 > :warning: This repository is work in progress. Check back soon for its first release.
@@ -8,6 +6,19 @@ This OpenSSL CNG Engine project implements an engine for transparently leveragin
 
 For questions related to using this engine in conjunction with RTI's Connext DDS Secure product, please contact .
 
+## Current build status
+
+Whenever a modification is pushed to the `develop` branch of this repository, the solution is built on both VS2017 and VS2019 AppVeyor instantiations, followed by test runs on each of them.
+
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/rticommunity/openssl-cng-engine?branch=develop&svg=true&passingText=passing%20%F0%9F%A5%B3)](https://ci.appveyor.com/project/rticommunity/openssl-cng-engine/branch/develop)
+
 ## Getting started
 
 Check out [the User's Manual](https://openssl-cng-engine.readthedocs.io/en/latest/index.html) to get started.
+
+## Thanks
+
+Many thanks go to
+
+- [AppVeyor](https://www.appveyor.com) for their great Continuous Integration (CI) service used to continuously monitor the quality of this project
+- [Read the Docs](https://www.readthedocs.org) for building and hosting the documentation for this project.
