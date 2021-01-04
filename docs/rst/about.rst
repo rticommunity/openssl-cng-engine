@@ -20,42 +20,30 @@ EVP (envelope)
 
 The first component is a "traditional" `engine <https://github.com/openssl/openssl/blob/OpenSSL_1_1_1i/README.ENGINE>`_ that redirects `the EVP high-level cryptographic functions <https://www.openssl.org/docs/man1.1.1/man7/evp.html>`_ to their equivalent algorithms implemented by `CNG Cryptographic Primitive Functions <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-cryptographic-primitive-functions>`_. These functions are exposed via the ``bcrypt.h`` header file in the Windows SDK, and provided by the ``Bcrypt.dll`` library. Therefore, the associated naming convention for the CNG Engine is to use ``bcrypt`` in project names, like ``engine-bcrypt`` or ``lib-evp-bcrypt``.
 
-.. list-table:: Supported EVP algorithms
-   :widths: 10 50 15
+.. list-table:: Supported algorithms
+   :widths: 25 50
    :header-rows: 1
 
-   * - Method
-     - Description
+   * - Algorithm
      - Remarks
-   * - ``AES-GCM``
-     - Authenticated Encryption with Authenticated Data (AEAD)
-     - 128, 192 or 256 bits key
-   * - ``DH``
-     - Diffie-Hellman shared secret agreement
+   * - :ref:`algorithms_cipher_rst`
+     - AES-GCM with 128, 192 or 256 bits key
+   * - :ref:`algorithms_dh_rst`
      - 512 bits ≤ key size ≤ 4096 bits
-   * - ``DSA``
-     - Digital Signature Algorithm
-     -
-   * - ``ECDH``
-     - Elliptical Curve DH
-     - P-256, P-384 and P-521
-   * - ``ECDSA``
-     - Elliptical Curve DSA
-     - P-256, P-384 and P-521
-   * - ``HMAC-SHA``
-     - Hash-based Message Authentication Code with SHA hash
-     - With the SHAs mentioned below 
-   * - ``RNG``
-     - Random Number Generator
-     -
-   * - ``RSA``
-     - RSA public key algorithms
-     - 512 bits ≤ key size ≤ 16384 bits
-   * - ``SHA``
-     - Secure Hash Algorithm
+   * - :ref:`algorithms_dsa_rst`
+     - Not yet implemented
+   * - :ref:`algorithms_ec_rst`
+     - ECDH and ECDSA with P-256, P-384 and P-521
+   * - :ref:`algorithms_md_rst`
      - SHA-1, SHA-256, SHA-384 and SHA-512
+   * - :ref:`algorithms_hmac_rst`
+     - HMAC with SHA
+   * - :ref:`algorithms_rand_rst`
+     - Default CNG random number provider
+   * - :ref:`algorithms_rsa_rst`
+     - 512 bits ≤ key size ≤ 16384 bits
 
-For a detailed overview of the different algorithms supported, see section :ref:`algorithms_rst`.
+For a more comprehensive overview, see section :ref:`algorithms_rst`.
 
 Note that cryptographic key material in the EVP engine is ephemeral, generated at runtime with the help of the random number generator.
 

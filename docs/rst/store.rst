@@ -1,9 +1,9 @@
 .. _store_rst:
 
-NCrypt STORE details
-============================
+NCrypt STORE operations
+=======================
 
-NCrypt STORE details
+NCrypt STORE operations
 
 .. toctree::
    :maxdepth: 1
