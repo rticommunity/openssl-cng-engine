@@ -14,7 +14,15 @@ Whenever a modification is pushed to the `develop` branch of this repository, th
 
 ## Getting started
 
-Check out [the User's Manual](https://openssl-cng-engine.readthedocs.io/en/latest/index.html) to get started.
+Building the CNG Engine should be easy, if all prerequisites are met. One option is to use the Visual Studio IDE, just (double) clicking the solution `openssl-cng-engine.sln` should open your installed version of Visual Studio or, if you have multiple versions installed, will let you select which version to use. As long as you have some edition of VS2017 or VS2019, you should be good. With this approach, the latest installed version of the Window SDK should automatically be configured as well. From there, build the solution as usual.
+
+After successfully completing the build, all elements needed to run a set of functional tests should appear in a folder under the `bld` directory. Its name will depend on the toolchain used. The following command is an example of how to run the EVP tests from the command line:
+
+    >bld\x64-Debug-v142\gtest-engine-bcrypt.exe
+
+The main components that this project provides are two dynamically loadable libraries called `engine-bcrypt.dll`, glueing the CNG Cryptographic Primitives through OpenSSL EVP methods, and `engine-ncrypt.dll`, implementing an OpenSSL STORE abstraction for the Windows Certificate and Key Stores. 
+
+For a complete overview of how to build, test and use this CNG Engine, check out [the User's Manual on Read the Docs](https://openssl-cng-engine.readthedocs.io/en/latest/index.html).
 
 ## Thanks
 
