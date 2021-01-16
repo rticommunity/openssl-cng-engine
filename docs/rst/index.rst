@@ -32,11 +32,8 @@ For several reasons, the use of this engine comes with a number of caveats. Chec
 In order to maintain code and documentation quality, the software development process leverages CI techniques and follows conventions outlined in section :ref:`process_rst`.
 
 
-Table of Contents
------------------
-
 .. toctree::
-   :maxdepth: 2
+   :hidden:
 
    about
    building

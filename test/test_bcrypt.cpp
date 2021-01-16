@@ -219,7 +219,7 @@ namespace bcrypt_testing {
     //
     // ----------------------------------------------------------------------------
 
-    // Name of the DDL to load
+    // Name of the DLL to load
     static const char *ENGINE_NAME = "engine-bcrypt";
     // Need this static object around for proper setting up and tearing down
     static ENGINE *S_engine = nullptr;
@@ -249,7 +249,6 @@ namespace bcrypt_testing {
             OSSL_ASSERT_EQ(1, OPENSSL_init_crypto(init_options, NULL));
         } else {
             ENGINE *e;
-            const EVP_MD *sha256_md;
 
             // Load the engine
             OSSL_ASSERT_NE(nullptr, e = ENGINE_by_id("dynamic"));
@@ -258,10 +257,8 @@ namespace bcrypt_testing {
             OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "debug_level", "1", 0));
             OSSL_ASSERT_EQ(1, ENGINE_init(e));
             OSSL_ASSERT_EQ(1, ENGINE_add(e));
+            // Make the engine's implementations the default implementations
             OSSL_ASSERT_EQ(1, ENGINE_set_default(e, ENGINE_METHOD_ALL));
-            // Make sure SHA-256 is available
-            OSSL_ASSERT_NE(nullptr, (sha256_md = ENGINE_get_digest(e, NID_sha256)));
-            OSSL_ASSERT_EQ(1, EVP_add_digest(sha256_md));
             // Engine's structural refcount has been upped by ENGINE_by_id, lower it
             OSSL_ASSERT_EQ(1, ENGINE_free(e));
             // Keep the engine around for tearing down, possibly expose it to derived
