@@ -34,7 +34,6 @@ This table enumerates the different algorithms supported through the EVP engine,
 
 
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
    algorithms/fips

@@ -12,7 +12,6 @@ The Visual Studio solutions refer to several `MSBuild <https://docs.microsoft.co
 For headless building, a batch script ``msbuild-single.bat`` has been provided in that same ``msbuild`` directory. It is used by the CI setup for checking the build as well. Section :ref:`building_scripts_rst` explains how to use it.
 
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
    building/toolchains
