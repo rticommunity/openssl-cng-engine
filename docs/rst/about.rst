@@ -51,7 +51,7 @@ Note that cryptographic key material in the EVP engine is ephemeral, generated a
 STORE (ossl_store)
 **********************
 
-The second component is CNG-based implementation of an `OpenSSL STORE <https://www.openssl.org/docs/man1.1.1/man7/ossl_store.html>`_. The store component currently supports enumerating over, addressing and using public key certificates and (private) keys. For that, the loader leverages, among others, `CNG Key Storage Functsion <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-key-storage-functions>`_. These functions are exposed via the ``ncrypt.h`` header file in the Windows SDK, and provided by the ``Ncrypt.dll`` library. Therefore, the associated naming convention for the CNG Engine is to use ``ncrypt`` in project names, like ``engine-ncrypt`` or ``lib-store-ncrypt``. Additionally, it leverages `functions to interact with the Certificate Store <https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>`_.
+The second component is a CNG-based implementation of an `OpenSSL STORE <https://www.openssl.org/docs/man1.1.1/man7/ossl_store.html>`_. The store component currently supports enumerating over, addressing and using public key certificates and (private) keys. For that, the loader leverages, among others, `CNG Key Storage Functsion <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-key-storage-functions>`_. These functions are exposed via the ``ncrypt.h`` header file in the Windows SDK, and provided by the ``Ncrypt.dll`` library. Therefore, the associated naming convention for the CNG Engine is to use ``ncrypt`` in project names, like ``engine-ncrypt`` or ``lib-store-ncrypt``. Additionally, it leverages `functions to interact with the Certificate Store <https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>`_.
 
 The URI addressing schema format aligns with the `PowerShell's Certificate Provider <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/about/about_certificate_provider?view=powershell-7.1>`_. For a detailed overview of the supported store mechanisms, see section :ref:`store_rst`.
 
@@ -70,7 +70,7 @@ Not all possible combinations of Windows OS, SDK and Visual Studio version combi
    * - Visual Studio
      - SDK
      - Remarks
-   * - VS 2019 (v142)
+   * - VS2019 (v142)
      - 10.0.19041.0 (2004)
      - CI-tested
    * -
@@ -79,7 +79,7 @@ Not all possible combinations of Windows OS, SDK and Visual Studio version combi
    * -
      - 10.0.17763.0 (1809)
      -
-   * - VS 2017 (v141)
+   * - VS2017 (v141)
      - 10.0.19041.0 (2004)
      -
    * -

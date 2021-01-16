@@ -10,7 +10,6 @@ Currently, both the BCrypt (EVP) and NCrypt (STORE) engine components have assoc
 These tests can be run directly from the command line, as explained in section :ref:`testing_command_line_rst`. Both the EVP and STORE test applications allow for leveraging the `VSTest <https://github.com/microsoft/vstest>`_ platform as well, see section :ref:`testing_vstest_console_rst` for that. Another way to run the tests is from the Visual Studio IDE. Some guidelines for that are given in section :ref:`testing_visual_studio_rst`.
 
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
    testing/functional_tests
