@@ -66,7 +66,7 @@ By leveraging the NCrypt STORE engine, the OpenSSL ``storeutl`` command can be u
 
 |personal_certificates|
 
-As explained in :ref:`store_uris_rst`, the associated URI is ``cert:/LocalMachine/My``. Its contents can be queried like this:
+As explained in :ref:`store_objects_uris_rst`, the associated URI is ``cert:/LocalMachine/My``. Its contents can be queried like this:
 
 .. code-block:: none
 
