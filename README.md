@@ -24,7 +24,7 @@ The main components that this project provides are two dynamically loadable libr
 
 Building the CNG Engine should be easy, if all prerequisites are met. One option is to use the Visual Studio IDE, just (double) clicking the solution `openssl-cng-engine.sln` should open your installed version of Visual Studio or, if you have multiple versions installed, will let you select which version to use. As long as you have some edition of VS2017 or VS2019, you should be good. With this approach, the latest installed version of the Window SDK should automatically be configured as well. From there, build the solution as usual.
 
-If the build was successful, the tests can be run in the debugger. The test projects are based on GoogleTest and called `gtest-engine-bcrypt` and `gtest-engine-ncrypt`. The former is a standalone test and should succeed without failures. The latter depends on the presence of certificates with their associated private keys in the Windows certificate store. By default, it will try to access the personal certificates in the Local Machine store. Using its keys, like needed for the signing tests, requires running with administrator privileges.
+If the build was successful, the tests can be run in the debugger. The test projects are based on GoogleTest and called `gtest-engine-bcrypt` and `gtest-engine-ncrypt`. The former is a standalone test and should succeed without failures. The latter depends on the presence of certificates with their associated private keys in the Windows certificate store. By default, it will try to access the personal certificates in the local computer store. Using its keys, like needed for the signing tests, requires running with administrator privileges.
 
 ### Using the command prompt
 
@@ -39,7 +39,7 @@ After successfully completing the build, all elements needed to run a set of fun
 
     > bld\x64-Debug-v142\gtest-engine-bcrypt.exe
 
-As explained above, `gtest-engine-ncrypt` requires administrator privileges to succeed because it tries to use private keys from the local machine store for its signing functionality.
+As explained above, `gtest-engine-ncrypt` requires administrator privileges to succeed because it tries to use private keys from the local computer's personal store for its signing functionality.
 
 This completes the Quickstart. From this point on, it is recommended to read [the User's Manual on Read the Docs](https://openssl-cng-engine.readthedocs.io/en/latest/index.html).
 
