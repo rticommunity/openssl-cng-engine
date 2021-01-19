@@ -35,7 +35,7 @@ To verify whether OpenSSL can find and load an engine, the `engine command <http
 
 .. code-block:: none
 
-    > openssl engine dynamic -pre SO_PATH:engine-bcrypt -pre LOAD
+    >openssl engine dynamic -pre SO_PATH:engine-bcrypt -pre LOAD
     (dynamic) Dynamic engine loading support
     [Success]: SO_PATH:engine-bcrypt
     [Success]: LOAD

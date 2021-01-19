@@ -8,6 +8,7 @@ Known limitations
 Todo...
 
 Notes to self:
+
 * The option to build the engines as static libraries is currently not provided by any of the Visual Studio projects. 
 * For RSA, only PKCS#1 v1.5 padding is (or rather, can be) supported (insert link)
 * Diffie-Hellman operations are not supported in the same way for some older versions of Windows (insert link)

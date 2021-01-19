@@ -7,7 +7,7 @@ About RTI's OpenSSL CNG Engine
 
 This OpenSSL CNG Engine project implements an engine for transparently leveraging Windows' `Cryptography API: Next Generation <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-portal>`_ (CNG) with OpenSSL. It supports CNG's `Cryptographic Primitives <https://docs.microsoft.com/en-us/windows/win32/seccng/cryptographic-primitives>`_ as well as some of its `Key Storage and Retrieval <https://docs.microsoft.com/en-us/windows/win32/seccng/key-storage-and-retrieval>`_ mechanisms and legacy `CryptoAPI <https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>`_ (CAPI) functionality for certificates.
 
-You may want to use this engine if you prefer to use the OpenSSL API over the Windows CNG API directly. The only OpenSSL branch supported is ``1.1.1`` and only the latest version, currently ``1.1.1i``, is CI-tested.
+You may want to use this engine if you prefer to use the OpenSSL API over the Windows CNG API directly. The only OpenSSL branch supported is 1.1.1 and only the latest version, currently 1.1.1i, is CI-tested.
 
 
 Functionality provided

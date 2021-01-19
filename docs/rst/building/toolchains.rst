@@ -46,7 +46,7 @@ Building the CNG Engine is not possible without any of these SDK versions instal
 OpenSSL version and installation location
 -----------------------------------------
 
-The CNG Engine can only be used in conjunction with the ``1.1.1`` branch of OpenSSL, due to differences in API definitions for the different versions. Several commonly used installation directories are supported out of the box. For other locations, use an environment variable or MSBuild property called ``OpenSSLDir`` to indicate the OpenSSL installation location.
+The CNG Engine can only be used in conjunction with the 1.1.1 branch of OpenSSL, due to differences in API definitions for the different versions. Several commonly used installation directories are supported out of the box. For other locations, use an environment variable or MSBuild property called ``OpenSSLDir`` to indicate the OpenSSL installation location.
 
 Whichever installation directory is used, the CNG Engine projects will try to find the associated OpenSSL debug binaries in the same directory but suffixed with the character ``d``. If no such directory is found, then no debug information will be available.
 

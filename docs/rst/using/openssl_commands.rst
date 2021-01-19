@@ -14,14 +14,14 @@ This section shows how to use the BCrypt EVP engine in the following command, wh
 
 .. code-block:: none
 
-    > echo To be signed| openssl dgst -hmac someKey
+    >echo To be signed| openssl dgst -hmac someKey
     (stdin)= 66498048b38624a9c6d2431873b124981f77ed5bd0ebcacecbcbe8e81ce6d091
 
 This can be reproduced using the CNG implementation of the crypto algorithms through the BCrypt EVP engine as follows:
 
 .. code-block:: none
 
-    > echo To be signed| openssl dgst -hmac someKey -engine engine-bcrypt
+    >echo To be signed| openssl dgst -hmac someKey -engine engine-bcrypt
     engine "engine-bcrypt" set.
     (stdin)= 66498048b38624a9c6d2431873b124981f77ed5bd0ebcacecbcbe8e81ce6d091
 
@@ -50,8 +50,8 @@ Now the following will leverage the engine:
 
 .. code-block:: none
 
-    > set OPENSSL_CONF=bcrypt.conf
-    > echo To be signed| openssl dgst -hmac someKey
+    >set OPENSSL_CONF=bcrypt.conf
+    >echo To be signed| openssl dgst -hmac someKey
     (stdin)= 66498048b38624a9c6d2431873b124981f77ed5bd0ebcacecbcbe8e81ce6d091
 
 Running ``DebugView`` at the same time demonstrates that the BCrypt EVP engine was used indeed:
@@ -70,7 +70,7 @@ As explained in :ref:`store_objects_uris_rst`, the associated URI is ``cert:/Loc
 
 .. code-block:: none
 
-    > openssl storeutl -engine engine-ncrypt -certs cert:/LocalMachine/My
+    >openssl storeutl -engine engine-ncrypt -certs cert:/LocalMachine/My
     engine "engine-ncrypt" set.
     0: Name: cert:/LocalMachine/My/9b85e433216f91999362fe38d8729ee74a098950
     CN=RSAlice
@@ -88,7 +88,7 @@ Using the private key associated with that certificate, some example plaintext c
 
 .. code-block:: none
 
-    > echo To be signed| openssl dgst -sha256 -keyform engine -engine engine-ncrypt -sign cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4 -out signature.bin
+    >echo To be signed| openssl dgst -sha256 -keyform engine -engine engine-ncrypt -sign cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4 -out signature.bin
 
 Note that this requires Administrator privileges, since it uses the private key associated with a certificate in the local computer's store.
 
@@ -96,13 +96,13 @@ For illustrative purposes, the NCrypt-generated signature will be verified using
 
 .. code-block:: none
 
-    > openssl storeutl -engine engine-ncrypt -certs cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4 | openssl x509 -pubkey -noout > ECCharlie_pub.pem
+    >openssl storeutl -engine engine-ncrypt -certs cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4 | openssl x509 -pubkey -noout > ECCharlie_pub.pem
 
 With that, the signature previously generated can be verified with the builtin OpenSSL implementation like this:
 
 .. code-block:: none
 
-    > echo To be signed| openssl dgst -signature signature.bin -verify ECCharlie_pub.pem
+    >echo To be signed| openssl dgst -signature signature.bin -verify ECCharlie_pub.pem
     Verified OK
 
 

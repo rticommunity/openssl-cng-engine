@@ -12,7 +12,7 @@ For generic engine control commands, the OpenSSL ``engine`` command is capable o
 
 .. code-block:: none
 
-    > openssl engine dynamic -pre SO_PATH:engine-bcrypt -pre LOAD -vvv -t -c
+    >openssl engine dynamic -pre SO_PATH:engine-bcrypt -pre LOAD -vvv -t -c
     (dynamic) Dynamic engine loading support
     [Success]: SO_PATH:engine-bcrypt
     [Success]: LOAD

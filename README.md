@@ -2,7 +2,7 @@
 
 > :warning: This repository is work in progress. Check back soon for its first release.
 
-This OpenSSL CNG Engine project implements an engine for transparently leveraging Windows' [Cryptography API: Next Generation](https://docs.microsoft.com/en-us/windows/win32/seccng/cng-portal) (CNG) with OpenSSL `1.1.1`. It supports CNG's [Cryptographic Primitives](https://docs.microsoft.com/en-us/windows/win32/seccng/cryptographic-primitives) as well as some of its [Key Storage and Retrieval](https://docs.microsoft.com/en-us/windows/win32/seccng/key-storage-and-retrieval) mechanisms and legacy [CryptoAPI](https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>) (CAPI) functionality for certificates.
+This OpenSSL CNG Engine project implements an engine for transparently leveraging Windows' [Cryptography API: Next Generation](https://docs.microsoft.com/en-us/windows/win32/seccng/cng-portal) (CNG) with OpenSSL 1.1.1. It supports CNG's [Cryptographic Primitives](https://docs.microsoft.com/en-us/windows/win32/seccng/cryptographic-primitives) as well as some of its [Key Storage and Retrieval](https://docs.microsoft.com/en-us/windows/win32/seccng/key-storage-and-retrieval) mechanisms and legacy [CryptoAPI](https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/>) (CAPI) functionality for certificates.
 
 For questions related to using this engine in conjunction with RTI's Connext DDS Secure product, please contact .
 
@@ -37,7 +37,7 @@ A convenient way to build the solution is provided through the `msbuild-single.b
 
 After successfully completing the build, all elements needed to run a set of functional tests should appear in the folders mentioned here. With the above setup, the following command is an example of how to run the BCrypt EVP tests from the command line:
 
-    > bld\x64-Debug-v142\gtest-engine-bcrypt.exe
+    >bld\x64-Debug-v142\gtest-engine-bcrypt.exe
 
 As explained above, `gtest-engine-ncrypt` requires administrator privileges to succeed because it tries to use private keys from the local computer's personal store for its signing functionality.
 

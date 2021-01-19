@@ -1,25 +1,20 @@
 .. _building_scripts_rst:
 
-Convenience scripts
-===================
+Build scripts
+=============
 
-The ``msbuild`` directory contains batch scripts that can execute specific tasks conveniently.
-
-Scripts for building solutions
-------------------------------
-
-The scripts ``msbuild-single.bat`` and ``msbuild-all.bat`` can be used for building the solution in a headless mode, from the command line. Using these scripts still requires a complete toolchain to be installed, as explained in :ref:`building_toolchains_rst`. However, the Visual Studio IDE is not started. The scripts (try to) figure out by themselves where the different toolchain components are located. Consequently, it is possible (or rather, recommended) to run them from a plain Command Prompt. This is the approach taken in the AppVeyor CI environment.
+The ``msbuild`` directory contains the batch scripts ``msbuild-single.bat`` and ``msbuild-all.bat`` for conveniently building the solution in a headless mode, from the command line. Using these scripts still requires a complete toolchain to be installed, as explained in :ref:`building_toolchains_rst`. However, the Visual Studio IDE is not started. The scripts (try to) figure out by themselves where the different toolchain components are located. Consequently, it is possible (or rather, recommended) to run them from a plain Command Prompt as opposed to some Visual Studio command prompt. This is the approach taken in the AppVeyor CI environment as well.
 
 ``msbuild-single.bat``
-**********************
+----------------------
 
 This script executes the following steps:
 
-* Parses the (optional) parameters provided to identify the target and toolchain requested for this build
-* Finds and invokes the right development environment script, depending on the requested toolchain
-* Uses CLangFormat (if version 10+ is present) to verify code formatting compliance
-* Restores any NuGet packages needed (explicitly, using NuGet, or implicitly, using MSBuild)
-* Runs MSBuild for the Debug and Release configurations, both for x86 and x64 platforms
+* Parses the (optional) parameters provided to identify the target and toolchain requested.
+* Finds and invokes the right development environment script for the requested toolchain.
+* Uses CLangFormat to verify code formatting compliance, in VS2019 environments only.
+* Restores any NuGet packages needed, explicitly using NuGet, or implicitly using MSBuild.
+* Runs MSBuild for the Debug and Release configurations, both for x86 and x64 platforms.
 
 The MSBuild commands executed by this script contain options for writing log files to the ``log`` subdirectory. The exact locations of these files, as well as the output binaries, is printed when the script is run. This is illustrated by the following example run:
 
@@ -101,12 +96,6 @@ To get more information about the available command line options for this script
 
 
 ``msbuild-all.bat``
-*******************
+-------------------
 
 This script will try to build all currently known configurations by repeatedly invoking the above script ``msbuild-single.bat`` with all possible configurations. If not all SDKs or Visual Studio versions are installed, this will emit errors. Note that this is mostly for testing purposes to see if everything builds fine. You probably do not want to use this script for any other purposes.
-
-
-Scripts for running tests
--------------------------
-
-Todo...

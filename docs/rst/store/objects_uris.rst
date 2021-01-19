@@ -37,7 +37,7 @@ With the NCrypt STORE engine configured to be automatically loaded, the OpenSSL 
 
 .. code-block:: none
 
-    > openssl storeutl -certs cert:/LocalMachine/My
+    >openssl storeutl -certs cert:/LocalMachine/My
     0: Name: cert:/LocalMachine/My/9b85e433216f91999362fe38d8729ee74a098950
     CN=RSAlice
     1: Name: cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4
@@ -64,7 +64,7 @@ A similar one-liner for OpenSSL:
 
 .. code-block:: none
 
-    > openssl storeutl -certs cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4 | openssl x509 -noout -subject -issuer -fingerprint -startdate -enddate
+    >openssl storeutl -certs cert:/LocalMachine/My/1cdb52270cde175e62e876551bcd56b21bad84c4 | openssl x509 -noout -subject -issuer -fingerprint -startdate -enddate
     subject=CN = ECCharlie
     issuer=DC = com, DC = rti, CN = rti-SVCS-PKI-W2016-CA
     SHA1 Fingerprint=1C:DB:52:27:0C:DE:17:5E:62:E8:76:55:1B:CD:56:B2:1B:AD:84:C4
