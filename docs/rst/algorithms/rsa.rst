@@ -29,4 +29,4 @@ There are no RSA-specific control commands.
 Known issues or limitations
 ---------------------------
 
-See the OpenSSL issue `Engine's .rsa_sign and .rsa_verify methods are never invoked when using PSS padding mode <https://github.com/openssl/openssl/issues/7341>`_ for an explanation how the OpenSSL implementation of the RSA sign and verify functionality prevents any engine from providing padding other than PKCS#1 v1.5 padding (``RSA_PKCS1_PADDING``).
+The OpenSSL implementation of the RSA sign and verify functionality prevents any engine from supporting padding other than RSA-PKCS#1 v1.5 padding (``RSA_PKCS1_PADDING``). In particular, `the Probabilistic Signature Scheme RSA-PSS <https://en.wikipedia.org/wiki/Probabilistic_signature_scheme>`_ (``RSA_PKCS1_PSS_PADDING``) -- the recommended replacement for RSA-PKCS#1 v1.5 padding -- is not available.
