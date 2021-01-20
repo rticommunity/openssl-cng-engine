@@ -93,12 +93,12 @@ Output files and locations
 All projects are configured to put their output in a directory whose name depends on several variables:
 ``bld\$(PlatformTarget)-$(Configuration)-$(PlatformToolset)$(SDKSuffix)\all``. The ``SDKSuffix`` is optional. Furthermore, each project uses its own subdirectory below that, with the same name as the project itself, to place its intermediate build objects.
 
-For convenience, the small subset of binaries relevant for running and, in the case of a debug build, debugging the tests are additionally copied to one directory level up higher. This is illustrated in the following screen shot:
+For convenience, the small subset of binaries relevant for running and -- in the case of a debug build -- debugging the tests are additionally copied to one directory level up higher. This is illustrated in the following screen shot:
 
 |output|
 
 .. |solution_explorer| image:: ../img/building_projects.png
-  :width: 400
+  :width: 300
   :alt: Solution Explorer
 
 .. |general_properties| image:: ../img/building_general_properties.png

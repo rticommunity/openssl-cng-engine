@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #define CMN_UNUSED(p) UNREFERENCED_PARAMETER(p)
 
 #define CMN_malloc(n)            OPENSSL_malloc(n)
+#define CMN_zalloc(n)            OPENSSL_zalloc(n)
 #define CMN_realloc(p, n)        OPENSSL_realloc(p, n)
 #define CMN_free(p)              OPENSSL_free(p)
 #define CMN_memcpy(dst, src, n)  memcpy((dst), (src), (n))

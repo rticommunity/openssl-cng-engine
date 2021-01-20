@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ e_bcrypt_rand_initialize(void)
 
     if (S_rand_method == NULL) {
         /* There is no constructor for this, weird */
-        S_rand_method = CMN_malloc(sizeof(*S_rand_method));
+        S_rand_method = CMN_zalloc(sizeof(*S_rand_method));
         if (S_rand_method == NULL) {
             E_BCRYPT_err(e_bcrypt_rand_initialize, R_MALLOC_FAILED,
                          "Initializing PRNG");

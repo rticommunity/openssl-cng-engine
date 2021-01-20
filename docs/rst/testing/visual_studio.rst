@@ -24,14 +24,12 @@ The Enterprise edition of Visual Studio is capable of determining code coverage 
 Note that the code coverage percentage is currently low due to the large amount of failure branches that have not been hit.
 
 
-Running in the VS debugger
---------------------------
+Running in the Visual Studio debugger
+-------------------------------------
 
-The functional tests can easily be run in the Visual Studio debugger as well. This requires changing the Working Directory configuration in the Debugging property page to ``$(TargetDir)/..``, like this:
+The functional tests can easily be run in the Visual Studio debugger as well. The project is already set up to include the projects' target directory in the ``PATH`` and all binaries required to run should be available.
 
-|testing_properties|
-
-When running in the VS Debugger, debug messages may be emitted and show up in the Output window, for example like this:
+When running in the debugger, debug messages may be emitted and show up in the Output window, for example like this:
 
 .. code-block:: none
 
@@ -47,10 +45,4 @@ These are (double-)clickable messages that allow for navigating to the associate
 .. |testing_coverage| image:: ../img/testing_coverage.png
   :width: 600
   :alt: Code Coverage
-
-
-.. |testing_properties| image:: ../img/testing_properties.png
-  :width: 400
-  :alt: Debugging Properties
-
 

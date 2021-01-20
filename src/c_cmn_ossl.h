@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,3 +21,9 @@
 #include <openssl/rsa.h>
 #include <openssl/dh.h>
 #include <openssl/ec.h>
+
+/* Get rid of this construct after OpenSSL bug is fixed */
+/* See https://github.com/openssl/openssl/issues/13797 */
+#ifndef OSSL_INITIALIZES_ENGINE
+#define OSSL_INITIALIZES_ENGINE 0
+#endif

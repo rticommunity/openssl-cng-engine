@@ -55,8 +55,9 @@
   <PropertyGroup>
      <DebugIdentifier Condition=" '$(Configuration)'=='Debug' ">_DEBUG</DebugIdentifier>
      <DebugIdentifier Condition=" '$(Configuration)'=='Release' ">NDEBUG</DebugIdentifier>
+     <LocalDebuggerEnvironment>PATH=$(TargetDir);$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <!-- If OpenSSLDir not defined, try installation directory in AppVeyor environments -->
     <OpenSSLDir Condition=" '$(OpenSSLDir)|$(Platform)'=='|x64' And Exists('C:\OpenSSL-v111-Win64') ">C:\OpenSSL-v111-Win64</OpenSSLDir>

@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -315,7 +315,7 @@ ncrypt_x509_verify_cert(HCERTSTORE store_handle, X509_STORE_CTX *x509_store_ctx,
     chain_flags = 0;
     /* Standard chain engines are HCCE_CURRENT_USER and HCCE_LOCAL_MACHINE */
     /* TODO: make chain engine configurable */
-    if (!CertGetCertificateChain(HCCE_CURRENT_USER, first_cert_ctx, NULL,
+    if (!CertGetCertificateChain(HCCE_LOCAL_MACHINE, first_cert_ctx, NULL,
                                  cert_store, &chain_para, chain_flags, NULL,
                                  &chain_ctx)) {
         DWORD last_error = GetLastError();

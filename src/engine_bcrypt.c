@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -265,11 +265,18 @@ bcrypt_evp_bind_helper(ENGINE *engine, const char *engine_id)
         goto done;
     }
 
+#if OSSL_INITIALIZES_ENGINE
+    /* Set the init function, where all methods will be bound */
     if (ENGINE_set_init_function(engine, bcrypt_initialize) != 1) {
         E_BCRYPT_osslerr(ENGINE_set_init_function, "BCrypt engine binding");
         goto done;
     }
-
+#else
+    /* OpenSSL tools do not properly invoke the initialize function,
+       so let's do it here */
+    if (bcrypt_initialize(engine) != 1)
+        goto done;
+#endif
     result = 1;
 
 done:
