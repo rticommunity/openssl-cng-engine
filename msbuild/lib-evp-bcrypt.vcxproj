@@ -9,7 +9,13 @@
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\e_bcrypt.c" />
     <ClCompile Include="..\src\e_bcrypt_cipher.c" />
     <ClCompile Include="..\src\e_bcrypt_dh.c" />
     <ClCompile Include="..\src\e_bcrypt_digest.c" />
@@ -22,6 +28,7 @@
     <ClCompile Include="..\src\e_bcrypt_secret.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\e_bcrypt.h" />
     <ClInclude Include="..\src\e_bcrypt_cipher.h" />
     <ClInclude Include="..\src\e_bcrypt_dh.h" />
     <ClInclude Include="..\src\e_bcrypt_digest.h" />

@@ -1,14 +1,14 @@
 .. _using_dynamic_loading_rst:
 
-Loading the engine(s)
-=====================
+Dynamically loading the engine(s)
+=================================
 
-Both the BCrypt EVP and NCrypt STORE engines are built as dynamically loadable libraries.
+The solution includes projects for building both the BCrypt EVP and NCrypt STORE engines as dynamically loadable libraries. This may not always be the preferred mode of operation, depending on the requirements. For leveraging the engine(s) with the OpenSSL commands, dynamic loading is more convenient and does not require any rebuilding of the ``openssl`` binary.
 
 Engine loading mechanisms
 -------------------------
 
-Engine libraries to be loaded can be provided through several mechanisms.
+The dynamically loadable versions of the engine libraries are called ``engine-bcrypt.dll`` and ``engine-ncrypt.dll``. They can be provided to the OpenSSL libraries via several mechanisms.
 
 * Through settings in the OpenSSL configuration file, pointed to through the ``OPENSSL_CONF`` environment variable or otherwise located in its default location which depends on the OpenSSL installation
 * Through OpenSSL function calls in code
@@ -51,7 +51,7 @@ Example code of how to load them can be found in the ``Test::SetUpTestCase`` met
 
 .. code-block:: c++
 
-    static const char *ENGINE_NAME = "engine-bcrypt"; // "engine_ncrypt" for the STORE engine
+    static const char *ENGINE_NAME = "engine-bcrypt";
     ENGINE *e = ENGINE_by_id("dynamic");
     ENGINE_ctrl_cmd_string(e, "SO_PATH", ENGINE_NAME, 0);
     ENGINE_ctrl_cmd_string(e, "LOAD", NULL, 0);

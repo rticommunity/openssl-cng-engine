@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,24 @@
 
 /* This engine implements a store that supports loading of objects
  *   referenced via the cng scheme */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const char *ncrypt_store_id;
+
+/* Support for dynamically loadable engines */
+int
+ncrypt_store_bind(ENGINE *engine);
+
+/* Support for statically linked engines */
+void
+engine_load_ncrypt_store(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* Commands implemented by the store */
 /* NCRYPT_CMD_VERIFY_CERT: uses CNG functions to verify a certificate,

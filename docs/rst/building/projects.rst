@@ -28,12 +28,14 @@ This static library implements common functionality that is used by both the EVP
 ``lib-evp-bcrypt``
 ******************
 
-This static library implements the engine's EVP methods as outlined in section :ref:`algorithms_rst`. It is responsible for conversions back and forth between OpenSSL structures and their equivalent BCrypt counterparts. It knows how to forward the different ``evp`` calls to the right functions of the ``bcrypt`` API. It has the ``lib-common`` library as a dependency.
+This static library is the actual engine that implements the EVP methods as outlined in section :ref:`algorithms_rst`. It is responsible for conversions back and forth between OpenSSL structures and their equivalent BCrypt counterparts. It knows how to forward the different ``evp`` calls to the right functions of the ``bcrypt`` API. It has the ``lib-common`` library as a dependency.
+
+This is your library of choice when using the BCrypt EVP engine in the statically linked mode. See the ``gtest-engine-bcrypt`` project for an example on how to link and use it. 
 
 ``engine-bcrypt``
 *****************
 
-This dynamic library is the actual artefact that can get loaded by the OpenSSL suite as an engine, to replace its built-in algorithms. It is a small element that initializes the engine and relies on the ``lib-evp-bcrypt`` library beyond that.
+This dynamic library is the actual artefact that can get dynamically loaded, at runtime, by the OpenSSL suite as an engine, to replace its built-in algorithms. It is a small element that initializes the engine and relies on the ``lib-evp-bcrypt`` library beyond that.
 
 ``gtest-engine-bcrypt``
 ***********************
@@ -42,15 +44,19 @@ This application, based on the Google Test framework, implements a set of tests 
 
 This project depends on several Google Test components, as identified in ``msbuild\packages.config`` NuGet configuration file. In some cases, Visual Studio and/or MSBuild will not automatically install all dependencies properly, resulting in an error message. It may be required to install the missing packages manually using the NuGet CLI or the Visual Studio NuGet Package Manager features.
 
+By default, this test has the BCrypt EVP library statically linked. To switch to dynamic loading, define the preprocessor symbol ``DO_BCRYPT_EVP_DYNAMIC`` at compile time and give it a value other than 0.
+
 ``lib-store-ncrypt``
 ********************
 
-This static library implements the engine's STORE methods as outlined in section :ref:`store_rst`. It is responsible for conversions back and forth between OpenSSL structures and their equivalent NCrypt counterparts. It knows how to forward the different ``evp`` calls to the right functions of the ``ncrypt`` API. It has the ``lib-common`` library as a dependency.
+This static library is the actual engine that implements the STORE methods as outlined in section :ref:`store_rst`. It is responsible for conversions back and forth between OpenSSL structures and their equivalent NCrypt counterparts. It knows how to forward the different ``evp`` calls to the right functions of the ``ncrypt`` API. It has the ``lib-common`` library as a dependency.
+
+This is your library of choice when using the NCrypt Store engine in the statically linked mode. See the ``gtest-engine-ncrypt`` project for an example on how to link and use it. 
 
 ``engine-ncrypt``
 *****************
 
-This dynamic library is the actual artefact that can get loaded by the OpenSSL suite as an engine, as a store provider for the CNG ``cert:`` URI scheme. It is a small element that initializes the engine and relies on the ``lib-store-ncrypt`` library beyond that.
+This dynamic library is the actual artefact that can get dynamically loaded, at runtime, by the OpenSSL suite as an engine, as a store provider for the CNG ``cert:`` URI scheme. It is a small element that initializes the engine and relies on the ``lib-store-ncrypt`` library beyond that.
 
 ``gtest-engine-ncrypt``
 ***********************
@@ -58,6 +64,8 @@ This dynamic library is the actual artefact that can get loaded by the OpenSSL s
 This application, based on the Google Test framework, implements a set of tests to verify the STORE functionality as provided by the ``engine_ncrypt`` library. It dynamically loads (and unloads) that engine, iterates over certificates and keys found in the certificate store and executes signing of messages as well as verification of signatures and certificates. When run in debug configuration, additional checks around memory usage (un-freed pointers, heap corruption, stack corruption) are done.
 
 This project depends on several Google Test components, as identified in ``msbuild\packages.config`` NuGet configuration file. In some cases, Visual Studio and/or MSBuild will not automatically install all dependencies properly, resulting in an error message. It may be required to install the missing packages manually using the NuGet CLI or the Visual Studio NuGet Package Manager features.
+
+By default, this test has the NCrypt STORE library statically linked. To switch to dynamic loading, define the preprocessor symbol ``DO_NCRYPT_STORE_DYNAMIC`` at compile time and give it a value other than 0.
 
 
 .. _projects_shared:
@@ -93,7 +101,9 @@ Output files and locations
 All projects are configured to put their output in a directory whose name depends on several variables:
 ``bld\$(PlatformTarget)-$(Configuration)-$(PlatformToolset)$(SDKSuffix)\all``. The ``SDKSuffix`` is optional. Furthermore, each project uses its own subdirectory below that, with the same name as the project itself, to place its intermediate build objects.
 
-For convenience, the small subset of binaries relevant for running and -- in the case of a debug build -- debugging the tests are additionally copied to one directory level up higher. This is illustrated in the following screen shot:
+The binaries that contain the actual engines are called ``engine-bcrypt.dll`` and ``engine-ncrypt.dll`` for the dynamic versions, and ``lib-evp-bcrypt.lib`` and ``lib-store-ncrypt.lib`` for their static counterparts.
+
+For convenience, the small subset of binaries relevant for use with the ``openssl`` tool and for running and -- in the case of a debug build -- debugging the test applications are additionally copied to one directory level up higher. This is illustrated in the following screen shot:
 
 |output|
 

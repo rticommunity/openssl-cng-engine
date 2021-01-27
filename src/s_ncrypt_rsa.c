@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -480,7 +480,7 @@ done:
 /* Public RSA Key functions */
 
 static int
-rsa_key_method_get(RSA_METHOD **method_out)
+rsa_key_method_get(RSA_METHOD **method_out, bool release)
 {
     CMN_DBG_TRACE_ENTER;
 
@@ -489,7 +489,7 @@ rsa_key_method_get(RSA_METHOD **method_out)
 
     CMN_DBG_PRECOND_NOT_NULL(method_out);
 
-    if (s_method == NULL) {
+    if ((s_method == NULL) && !release) {
         const RSA_METHOD *default_method;
 
         /* The default method is our starting point */
@@ -510,6 +510,10 @@ rsa_key_method_get(RSA_METHOD **method_out)
     }
 
     *method_out = s_method;
+
+    if (release)
+        s_method = NULL;
+
     result = 1;
 
 done:
@@ -537,7 +541,7 @@ ncrypt_rsa_new(PCCERT_CONTEXT cert_ctx)
         goto done;
 
     /* Use our methods, not the default ones */
-    if (rsa_key_method_get(&method) != 1)
+    if (rsa_key_method_get(&method, false) != 1)
         goto done;
     if (RSA_set_method(rsa_key, method) != 1) {
         S_NCRYPT_osslerr(RSA_set_method,
@@ -595,7 +599,7 @@ s_ncrypt_rsa_initialize(void)
     int result = 0;
     RSA_METHOD *method;
 
-    if (rsa_key_method_get(&method) != 1)
+    if (rsa_key_method_get(&method, false) != 1)
         goto done;
 
     if (RSA_meth_set_sign(method, ncrypt_rsa_key_sign) != 1) {
@@ -617,7 +621,7 @@ s_ncrypt_rsa_finalize(void)
 
     RSA_METHOD *method;
 
-    if (rsa_key_method_get(&method) != 1)
+    if (rsa_key_method_get(&method, true) != 1)
         goto done;
 
     RSA_meth_free(method);

@@ -1,5 +1,5 @@
 
-// (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+// (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,17 @@
 #include <iterator>
 
 #include <openssl/engine.h>
+
+#ifndef DO_NCRYPT_STORE_DYNAMIC
+#define DO_NCRYPT_STORE_DYNAMIC 0
+#endif
+
+#if !DO_NCRYPT_STORE_DYNAMIC
+#pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "crypt32.lib")
+#pragma comment(lib, "lib-store-ncrypt.lib")
+#include "s_ncrypt.h"
+#endif
 
 // We depend on the following openssl library,
 // but it is not specified in their header files
@@ -166,12 +177,19 @@ void Test::SetUpTestCase()
     ENGINE* e;
 
     // Load the engine
+#if DO_NCRYPT_STORE_DYNAMIC
+    // Dynamically loaded
     OSSL_ASSERT_NE(nullptr, e = ENGINE_by_id("dynamic"));
     OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "SO_PATH", ENGINE_NAME, 0));
     OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "LOAD", NULL, 0));
+    OSSL_ASSERT_EQ(1, ENGINE_add(e));
+#else
+    // Statically linked
+    engine_load_ncrypt_store();
+    OSSL_ASSERT_NE(nullptr, e = ENGINE_by_id(ENGINE_NAME));
+#endif
     OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "debug_level", "1", 0));
     OSSL_ASSERT_EQ(1, ENGINE_init(e));
-    OSSL_ASSERT_EQ(1, ENGINE_add(e));
     // Make the engine's implementations the default implementations
     OSSL_ASSERT_EQ(1, ENGINE_set_default(e, ENGINE_METHOD_ALL));
     // Engine's structural refcount has been upped by ENGINE_by_id, lower it
@@ -189,11 +207,11 @@ void Test::TearDownTestCase()
         S_engine = NULL;
         // Would be nice if ENGINE_set_default(NULL, ENGINE_METHOD_ALL)
         //   did all these, but we have to do them manually
-        ENGINE_unregister_pkey_meths(e);
-        ENGINE_unregister_ciphers(e);
-        ENGINE_unregister_digests(e);
-        ENGINE_unregister_EC(e);
-        ENGINE_unregister_RAND(e);
+        //ENGINE_unregister_pkey_meths(e);
+        //ENGINE_unregister_ciphers(e);
+        //ENGINE_unregister_digests(e);
+        //ENGINE_unregister_EC(e);
+        //ENGINE_unregister_RAND(e);
         OSSL_EXPECT_EQ(1, ENGINE_remove(e));
         OSSL_EXPECT_EQ(1, ENGINE_finish(e));
     }

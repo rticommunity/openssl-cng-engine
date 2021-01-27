@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -574,7 +574,7 @@ done:
 /* Public EC Key functions */
 
 static int
-ec_key_method_get(EC_KEY_METHOD **method_out)
+ec_key_method_get(EC_KEY_METHOD **method_out, bool release)
 {
     CMN_DBG_TRACE_ENTER;
 
@@ -583,7 +583,7 @@ ec_key_method_get(EC_KEY_METHOD **method_out)
 
     CMN_DBG_PRECOND_NOT_NULL(method_out);
 
-    if (s_method == NULL) {
+    if ((s_method == NULL) && !release) {
         const EC_KEY_METHOD *default_method;
 
         /* The default method is our starting point */
@@ -604,6 +604,10 @@ ec_key_method_get(EC_KEY_METHOD **method_out)
     }
 
     *method_out = s_method;
+
+    if (release)
+        s_method = NULL;
+
     result = 1;
 
 done:
@@ -634,7 +638,7 @@ ncrypt_ec_key_new(PCCERT_CONTEXT cert_ctx)
         goto done;
 
     /* Use our methods, not the default ones */
-    if (ec_key_method_get(&method) != 1)
+    if (ec_key_method_get(&method, false) != 1)
         goto done;
     if (EC_KEY_set_method(ec_key, method) != 1) {
         S_NCRYPT_osslerr(EC_KEY_set_method,
@@ -689,7 +693,7 @@ s_ncrypt_ec_initialize(void)
     int result = 0;
     EC_KEY_METHOD *method;
 
-    if (ec_key_method_get(&method) != 1)
+    if (ec_key_method_get(&method, false) != 1)
         goto done;
 
     /* Modify the signing functions, don't touch the rest */
@@ -710,7 +714,7 @@ s_ncrypt_ec_finalize(void)
 
     EC_KEY_METHOD *method;
 
-    if (ec_key_method_get(&method) != 1)
+    if (ec_key_method_get(&method, true) != 1)
         goto done;
 
     EC_KEY_METHOD_free(method);

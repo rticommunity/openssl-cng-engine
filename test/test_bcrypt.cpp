@@ -1,5 +1,5 @@
 
-// (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+// (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,18 @@
 #include <iterator>
 
 #include <openssl/engine.h>
+
+#ifndef DO_BCRYPT_EVP_DYNAMIC
+#define DO_BCRYPT_EVP_DYNAMIC 0
+#endif
+
+#if !DO_BCRYPT_EVP_DYNAMIC
+#pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "crypt32.lib")
+#pragma comment(lib, "lib-evp-bcrypt.lib")
+#include "e_bcrypt.h"
+#endif
+
 
 // We depend on the following openssl library,
 // but it is not specified in their header files
@@ -251,12 +263,19 @@ namespace bcrypt_testing {
             ENGINE *e;
 
             // Load the engine
+#if DO_BCRYPT_EVP_DYNAMIC
+            // Dynamically loaded
             OSSL_ASSERT_NE(nullptr, e = ENGINE_by_id("dynamic"));
             OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "SO_PATH", ENGINE_NAME, 0));
             OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "LOAD", NULL, 0));
+            OSSL_ASSERT_EQ(1, ENGINE_add(e));
+#else
+            // Statically linked
+            engine_load_bcrypt_evp();
+            OSSL_ASSERT_NE(nullptr, e = ENGINE_by_id(ENGINE_NAME));
+#endif
             OSSL_ASSERT_EQ(1, ENGINE_ctrl_cmd_string(e, "debug_level", "1", 0));
             OSSL_ASSERT_EQ(1, ENGINE_init(e));
-            OSSL_ASSERT_EQ(1, ENGINE_add(e));
             // Make the engine's implementations the default implementations
             OSSL_ASSERT_EQ(1, ENGINE_set_default(e, ENGINE_METHOD_ALL));
             // Engine's structural refcount has been upped by ENGINE_by_id, lower it
