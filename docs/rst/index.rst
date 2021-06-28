@@ -5,7 +5,7 @@ Welcome to RTI's OpenSSL CNG Engine
 
 This project implements an engine for leveraging Windows' `Cryptography API: Next Generation <https://docs.microsoft.com/en-us/windows/win32/seccng/cng-portal>`_ (CNG) with the `OpenSSL <https://www.openssl.org>`_ crypto suite, branch 1.1.1.
 
-The OpenSSL CNG Engine source code is hosted `on Github as the openssl-cng-engine project <https://github.com/rticommunity/openssl-cng-engine>`_. It is brought to you by `Real-Time Innovations <https://www.rti.com>`_ under the `Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_. For questions related to using this engine in conjunction with RTI's Connext DDS Secure product, please contact .
+The OpenSSL CNG Engine source code is hosted `on Github as the openssl-cng-engine project <https://github.com/rticommunity/openssl-cng-engine>`_. It is brought to you by `Real-Time Innovations <https://www.rti.com>`_ under the `Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_. For questions related to using this engine in conjunction with RTI's Connext DDS Secure product, please contact cng@rti.com.
 
 
 Finding your way
