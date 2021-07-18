@@ -93,6 +93,6 @@ For more details concerning the code formatting, see section :ref:`process_rst`.
 Sphinx
 ------
 
-The documentation for this project is written in reStructuredText and found in the directory ``docs\rst``. A python script for locally building the HTML-formatted version is provided as ``doc\build_html.py``. Running this requires Python 3.6+ with the `Sphinx <https://pypi.org/project/Sphinx/>`_ and `sphinx-rtd-theme <https://pypi.org/project/sphinx-rtd-theme/>`_ packages installed.
+The documentation for this project is written in reStructuredText and found in the directory ``docs\rst``. A python script for locally building the HTML-formatted version is provided as ``docs\build_html.py``. Running this requires Python 3.6+ with the `Sphinx <https://pypi.org/project/Sphinx/>`_ and `sphinx-rtd-theme <https://pypi.org/project/sphinx-rtd-theme/>`_ packages installed.
 
 Note that the principal location of the documentation is `on Read the Docs <https://openssl-cng-engine.readthedocs.io/en/latest/>`_. That version is rebuilt whenever updates are pushed to the project's ``develop`` branch - and probably the one you are currently reading :-).

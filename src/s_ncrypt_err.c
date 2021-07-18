@@ -74,11 +74,17 @@ static ERR_STRING_DATA SNCRYPT_str_functions[] = {
     F_ERR_INIT(s_ncrypt_loader_free), F_ERR_INIT(s_ncrypt_loader_new),
     F_ERR_INIT(storage_kind_from_alias), F_ERR_INIT(wprovider_name_from_alias),
 
+    /* s_ncrypt_pkey.c */
+    F_ERR_INIT(ncrypt_pkey_rsa_initialize), F_ERR_INIT(ncrypt_pkey_rsa_sign),
+    F_ERR_INIT(rsa_pss_saltlen_normalized), F_ERR_INIT(s_ncrypt_pkey_finalize),
+    F_ERR_INIT(s_ncrypt_pkey_get), F_ERR_INIT(s_ncrypt_pkey_initialize),
+
     /* s_ncrypt_rsa.c */
     F_ERR_INIT(ncrypt_rsa_key_sign), F_ERR_INIT(ncrypt_rsa_new),
+    F_ERR_INIT(ncrypt_rsa_pss_sign_digest),
     F_ERR_INIT(rsa_md_type_to_algorithm),
     F_ERR_INIT(rsa_ncrypt_private_to_ossl_public),
-    F_ERR_INIT(rsa_padding_type_to_flag),
+    F_ERR_INIT(rsa_padding_type_to_flag), F_ERR_INIT(rsa_sign_digest),
 
     /* s_ncrypt_uri.c */
     F_ERR_INIT(do_lookup), F_ERR_INIT(ncrypt_uri_crack),

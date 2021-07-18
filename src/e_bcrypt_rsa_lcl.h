@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
 
 #pragma once
 
-#include "c_cmn_win.h" /* for PCCERT_CONTEXT */
-#include "c_cmn_ossl.h" /* for RSA */
-
-RSA *
-ncrypt_rsa_new(PCCERT_CONTEXT cert_ctx);
-
-void
-ncrypt_rsa_free(RSA *rsa_key);
+#include "e_bcrypt_rsa.h"
 
 /* Additional sign and verify methods to support PSS (for local use only) */
 int
-ncrypt_rsa_pss_sign_digest(int md_type, const unsigned char *dgst,
+bcrypt_rsa_pss_sign_digest(int md_type, const unsigned char *dgst,
                            unsigned int dgstlen, unsigned char *sig,
-                           unsigned int *siglen, const RSA *rsa_key,
+                           unsigned int *siglen, const RSA *rsa,
                            const EVP_MD *pss_md_mgf1, unsigned int pss_saltlen);
+
+int
+bcrypt_rsa_pss_verify_digest(int md_type, const unsigned char *dgst,
+                             unsigned int dgstlen, const unsigned char *sig,
+                             unsigned int siglen, const RSA *rsa,
+                             const EVP_MD *pss_md_mgf1,
+                             unsigned int pss_saltlen);

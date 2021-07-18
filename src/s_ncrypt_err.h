@@ -79,12 +79,22 @@ enum err_ncrypt_func_code {
     F_storage_kind_from_alias,
     F_wprovider_name_from_alias,
 
+    /* s_ncrypt_pkey.c */
+    F_ncrypt_pkey_rsa_initialize,
+    F_ncrypt_pkey_rsa_sign,
+    F_rsa_pss_saltlen_normalized,
+    F_s_ncrypt_pkey_finalize,
+    F_s_ncrypt_pkey_get,
+    F_s_ncrypt_pkey_initialize,
+
     /* s_ncrypt_rsa.c */
     F_ncrypt_rsa_key_sign,
     F_ncrypt_rsa_new,
+    F_ncrypt_rsa_pss_sign_digest,
     F_rsa_md_type_to_algorithm,
     F_rsa_ncrypt_private_to_ossl_public,
     F_rsa_padding_type_to_flag,
+    F_rsa_sign_digest,
     /* More to follow... */
 
     /* s_ncrypt_uri.c */

@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #define CMN_THIS_FILE "src/e_bcrypt_rsa.c"
 
 /* Interface */
+#include "e_bcrypt_rsa_lcl.h"
 #include "e_bcrypt_rsa.h"
 
 /* Implementation */
@@ -584,7 +585,7 @@ rsa_sign_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info, ULONG padding_flag,
 
     int result = 0;
     NTSTATUS cng_retval;
-    ULONG sig_len;
+    ULONG cng_sig_len;
 
     CMN_DBG_PRECOND_NOT_NULL(digest);
     CMN_DBG_PRECOND_NOT_NULL(sig_inout);
@@ -592,7 +593,7 @@ rsa_sign_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info, ULONG padding_flag,
 
     /* Calculate the required length */
     cng_retval = BCryptSignHash(h_key, padding_info, (PUCHAR)digest, digest_len,
-                                NULL, 0, &sig_len, padding_flag);
+                                NULL, 0, &cng_sig_len, padding_flag);
     if (NT_FAILED(cng_retval)) {
         E_BCRYPT_winerr(rsa_sign_digest, cng_retval, BCryptSignHash,
                         "Getting length of RSA signature");
@@ -602,14 +603,15 @@ rsa_sign_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info, ULONG padding_flag,
     /* Do the signing */
     /* Write into the signature buffer directly, as the format is the
      *   same for both OpenSSL and CNG */
-    cng_retval = BCryptSignHash(h_key, padding_info, (PUCHAR)digest, digest_len,
-                                sig_inout, sig_len, &sig_len, padding_flag);
+    cng_retval =
+        BCryptSignHash(h_key, padding_info, (PUCHAR)digest, digest_len,
+                       sig_inout, cng_sig_len, &cng_sig_len, padding_flag);
     if (NT_FAILED(cng_retval)) {
         E_BCRYPT_winerr(rsa_sign_digest, cng_retval, BCryptSignHash,
                         "Signing hash with RSA key");
         goto done;
     }
-    *sig_len_out = sig_len;
+    *sig_len_out = cng_sig_len;
     result = 1;
 
 done:
@@ -621,11 +623,10 @@ done:
 /*Verification */
 
 static int
-rsa_verify_signed_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info,
-                         ULONG padding_flag, const unsigned char *digest,
-                         unsigned int digest_len,
-                         const unsigned char *signature,
-                         unsigned int signature_len)
+rsa_verify_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info,
+                  ULONG padding_flag, const unsigned char *digest,
+                  unsigned int digest_len, const unsigned char *signature,
+                  unsigned int signature_len)
 {
     CMN_DBG_TRACE_ENTER;
 
@@ -640,12 +641,12 @@ rsa_verify_signed_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info,
         BCryptGetProperty(h_key, BCRYPT_SIGNATURE_LENGTH, (PUCHAR)&b_sig_len,
                           bytes_written, &bytes_written, 0);
     if (NT_FAILED(cng_retval)) {
-        E_BCRYPT_winerr(rsa_verify_signed_digest, cng_retval, BCryptGetProperty,
+        E_BCRYPT_winerr(rsa_verify_digest, cng_retval, BCryptGetProperty,
                         "Getting RSA signature length");
         goto done;
     }
     if (signature_len != b_sig_len) {
-        E_BCRYPT_err(rsa_verify_signed_digest, R_INCORRECT_USAGE,
+        E_BCRYPT_err(rsa_verify_digest, R_INCORRECT_USAGE,
                      "Verifying with wrong signature length");
         goto done;
     }
@@ -655,8 +656,7 @@ rsa_verify_signed_digest(BCRYPT_KEY_HANDLE h_key, PVOID padding_info,
         BCryptVerifySignature(h_key, padding_info, (PUCHAR)digest, digest_len,
                               (PUCHAR)signature, signature_len, padding_flag);
     if (NT_FAILED(cng_retval)) {
-        E_BCRYPT_winerr(rsa_verify_signed_digest, cng_retval,
-                        BCryptVerifySignature,
+        E_BCRYPT_winerr(rsa_verify_digest, cng_retval, BCryptVerifySignature,
                         "Verifying signature with RSA key");
         goto done;
     }
@@ -795,6 +795,7 @@ bcrypt_rsa_pub_enc(int from_len, const unsigned char *from,
 #endif /* TRY_OAEP */
     case RSA_PKCS1_PADDING:
         /* Convert given md type into bcrypt algorithm name */
+        /* Hmm, probably not needed, ignored for PKCS1 padding */
         pkcs1_info.pszAlgId = BCRYPT_SHA256_ALGORITHM;
         pad_info = &pkcs1_info;
         break;
@@ -967,77 +968,52 @@ bcrypt_rsa_finish(RSA *rsa)
     return result;
 }
 
+/* This function only gets invoked by OpenSSL with PKCS1 padding. */
+/* For PSS padding, see bcrypt_rsa_pss_sign() */
 static int
 bcrypt_rsa_sign(int md_type, const unsigned char *m, unsigned int m_length,
-                unsigned char *sigret, unsigned int *siglen, const RSA *rsa)
+                unsigned char *sig_inout, unsigned int *sig_len_out,
+                const RSA *rsa_key)
 {
     CMN_DBG_API_ENTER;
 
     int result = 0;
-    BCRYPT_KEY_HANDLE h_key = NULL;
-    ULONG padding_flag;
+    BCRYPT_KEY_HANDLE h_private_key = NULL;
     LPCWSTR md_alg;
+    ULONG padding_flag;
     PVOID padding_info;
     BCRYPT_PKCS1_PADDING_INFO pkcs1_info;
-#ifdef B_RSA_HAS_PSS
-    BCRYPT_PSS_PADDING_INFO pss_info;
-    const RSA_PSS_PARAMS *pss_params;
-#endif
 
     /* Convert OpenSSL formatted private key to BCrypt key */
-    if (rsa_ossl_to_rsa_bcrypt_private(&h_key, rsa) != 1)
+    if (rsa_ossl_to_rsa_bcrypt_private(&h_private_key, rsa_key) != 1)
         goto done;
 
     /* Convert OpenSSL digest type to the BCrypt equivalent */
     if (rsa_md_type_to_algorithm(md_type, &md_alg) != 1)
         goto done;
 
-#ifdef B_RSA_HAS_PSS
-    /* Get PSS params, if available */
-    pss_params = RSA_get0_pss_params(rsa);
-    if (pss_params != NULL) {
-        /* Note: this currently never happens in OpenSSL because its 
-         *   sign/verify implementation is broken */
-        uint64_t salt_length;
-        if (ASN1_INTEGER_get_uint64(&salt_length, pss_params->saltLength) !=
-            1) {
-            E_BCRYPT_osslerr(ASN1_INTEGER_get_uint64, "Converting salt length");
-            goto done;
-        }
-        if (rsa_padding_type_to_flag(RSA_PKCS1_PSS_PADDING, &padding_flag) != 1)
-            goto done;
-        pss_info.pszAlgId = md_alg;
-        pss_info.cbSalt = (ULONG)salt_length;
-        padding_info = &pss_info;
-    } else {
-        /* No PSS, so plain PKCS1 */
-        if (rsa_padding_type_to_flag(RSA_PKCS1_PADDING, &padding_flag) != 1)
-            goto done;
-        pkcs1_info.pszAlgId = md_alg;
-        padding_info = &pkcs1_info;
-    }
-#else
-    /* No PSS, so plain PKCS1 */
+    /* This function only gets invoked with PKCS1 padding */
     if (rsa_padding_type_to_flag(RSA_PKCS1_PADDING, &padding_flag) != 1)
         goto done;
     pkcs1_info.pszAlgId = md_alg;
     padding_info = &pkcs1_info;
-#endif
 
     /* Do the actual signing with the given padding */
-    if (rsa_sign_digest(h_key, padding_info, padding_flag, m, m_length, sigret,
-                        siglen) != 1)
+    if (rsa_sign_digest(h_private_key, padding_info, padding_flag, m, m_length,
+                        sig_inout, sig_len_out) != 1)
         goto done;
 
     result = 1;
 
 done:
-    rsa_bcrypt_release(h_key);
+    rsa_bcrypt_release(h_private_key);
 
     CMN_DBG_API_LEAVE;
     return result;
 }
 
+/* This function only gets invoked by OpenSSL with PKCS1 padding. */
+/* For PSS padding, see bcrypt_rsa_pss_verify() */
 static int
 bcrypt_rsa_verify(int md_type, const unsigned char *m, unsigned int m_length,
                   const unsigned char *sigbuf, unsigned int siglen,
@@ -1051,10 +1027,6 @@ bcrypt_rsa_verify(int md_type, const unsigned char *m, unsigned int m_length,
     LPCWSTR md_alg;
     PVOID padding_info;
     BCRYPT_PKCS1_PADDING_INFO pkcs1_info;
-#ifdef B_RSA_HAS_PSS
-    BCRYPT_PSS_PADDING_INFO pss_info;
-    const RSA_PSS_PARAMS *pss_params;
-#endif
 
     /* Convert OpenSSL formatted public key to BCrypt key */
     if (rsa_ossl_to_rsa_bcrypt_public(&h_key, rsa) != 1)
@@ -1064,41 +1036,15 @@ bcrypt_rsa_verify(int md_type, const unsigned char *m, unsigned int m_length,
     if (rsa_md_type_to_algorithm(md_type, &md_alg) != 1)
         goto done;
 
-#ifdef B_RSA_HAS_PSS
-    /* Get PSS params, if available */
-    pss_params = RSA_get0_pss_params(rsa);
-    if (pss_params != NULL) {
-        /* Note: this currently never happens in OpenSSL because its
-         *   sign/verify implementation is broken */
-        uint64_t salt_length;
-        if (ASN1_INTEGER_get_uint64(&salt_length, pss_params->saltLength) !=
-            1) {
-            E_BCRYPT_osslerr(ASN1_INTEGER_get_uint64, "Converting salt length");
-            goto done;
-        }
-        if (rsa_padding_type_to_flag(RSA_PKCS1_PSS_PADDING, &padding_flag) != 1)
-            goto done;
-        pss_info.pszAlgId = md_alg;
-        pss_info.cbSalt = (ULONG)salt_length;
-        padding_info = &pss_info;
-    } else {
-        /* No PSS, so plain PKCS1 */
-        if (rsa_padding_type_to_flag(RSA_PKCS1_PADDING, &padding_flag) != 1)
-            goto done;
-        pkcs1_info.pszAlgId = md_alg;
-        padding_info = &pkcs1_info;
-    }
-#else
-    /* No PSS, so plain PKCS1 */
+    /* This function only gets invoked with PKCS1 padding */
     if (rsa_padding_type_to_flag(RSA_PKCS1_PADDING, &padding_flag) != 1)
         goto done;
     pkcs1_info.pszAlgId = md_alg;
     padding_info = &pkcs1_info;
-#endif
 
     /* Do the actual verification with the given padding */
-    if (rsa_verify_signed_digest(h_key, padding_info, padding_flag, m, m_length,
-                                 sigbuf, siglen) != 1)
+    if (rsa_verify_digest(h_key, padding_info, padding_flag, m, m_length,
+                          sigbuf, siglen) != 1)
         goto done;
 
     result = 1;
@@ -1201,5 +1147,131 @@ e_bcrypt_rsa_finalize(void)
     result = 1;
 
     CMN_DBG_TRACE_LEAVE;
+    return result;
+}
+
+/* ------------------------------------------------------------*/
+/* Additional sign/verify methods to support PSS padding       */
+/* (invoked by our custom RSA PKEY method structure)           */
+/* ------------------------------------------------------------*/
+
+int
+bcrypt_rsa_pss_sign_digest(int md_type, const unsigned char *dgst,
+                           unsigned int dgstlen, unsigned char *sig,
+                           unsigned int *siglen, const RSA *rsa,
+                           const EVP_MD *pss_md_mgf1, unsigned int pss_saltlen)
+{
+    CMN_DBG_API_ENTER;
+
+    int result = 0;
+    BCRYPT_KEY_HANDLE h_key = NULL;
+    ULONG padding_flag;
+    LPCWSTR md_alg;
+    PVOID padding_info;
+    BCRYPT_PSS_PADDING_INFO pss_info;
+
+    CMN_DBG_PRECOND_NOT_NULL(siglen);
+
+    /* It seems that BCrypt in CNG has no option to set the
+     * mask generation function. Apparently, it uses the standard PKCS1 MGF
+     * in combination with the same digest used for the signature itself */
+    if (pss_md_mgf1 != NULL) {
+        if (EVP_MD_type(pss_md_mgf1) != md_type) {
+            E_BCRYPT_err(bcrypt_rsa_pss_sign_digest, R_INCORRECT_USAGE,
+                         "Unsupported PSS MGF digest type");
+            goto done;
+        }
+    }
+
+    /* Convert OpenSSL formatted private key to BCrypt key */
+    if (rsa_ossl_to_rsa_bcrypt_private(&h_key, rsa) != 1)
+        goto done;
+
+    /* Convert OpenSSL digest type to the BCrypt equivalent */
+    if (rsa_md_type_to_algorithm(md_type, &md_alg) != 1)
+        goto done;
+
+    /* Get saltlength in required format */
+    /*
+    if (ASN1_INTEGER_get_uint64(&salt_length, pss_params->saltLength) != 1) {
+        E_BCRYPT_osslerr(ASN1_INTEGER_get_uint64, "Converting salt length");
+        goto done;
+    }
+    */
+
+    if (rsa_padding_type_to_flag(RSA_PKCS1_PSS_PADDING, &padding_flag) != 1)
+        goto done;
+
+    pss_info.pszAlgId = md_alg;
+    pss_info.cbSalt = pss_saltlen;
+    padding_info = &pss_info;
+
+    /* Do the actual signing with the given padding */
+    if (rsa_sign_digest(h_key, padding_info, padding_flag, dgst, dgstlen, sig,
+                        siglen) != 1)
+        goto done;
+
+    result = 1;
+
+done:
+    rsa_bcrypt_release(h_key);
+
+    CMN_DBG_API_LEAVE;
+    return result;
+}
+
+int
+bcrypt_rsa_pss_verify_digest(int md_type, const unsigned char *dgst,
+                             unsigned int dgstlen, const unsigned char *sig,
+                             unsigned int siglen, const RSA *rsa,
+                             const EVP_MD *pss_md_mgf1,
+                             unsigned int pss_saltlen)
+{
+    CMN_DBG_API_ENTER;
+
+    int result = 0;
+    BCRYPT_KEY_HANDLE h_key = NULL;
+    ULONG padding_flag;
+    LPCWSTR md_alg;
+    PVOID padding_info;
+    BCRYPT_PSS_PADDING_INFO pss_info;
+
+    /* It seems that BCrypt in CNG has no option to set the
+     * mask generation function. Apparently, it uses the standard PKCS1 MGF
+     * in combination with the same digest used for the signature itself */
+    if (pss_md_mgf1 != NULL) {
+        if (EVP_MD_type(pss_md_mgf1) != md_type) {
+            E_BCRYPT_err(bcrypt_rsa_pss_sign_digest, R_INCORRECT_USAGE,
+                         "Unsupported PSS MGF digest type");
+            goto done;
+        }
+    }
+
+    /* Convert OpenSSL formatted public key to BCrypt key */
+    if (rsa_ossl_to_rsa_bcrypt_public(&h_key, rsa) != 1)
+        goto done;
+
+    /* Convert OpenSSL digest type to the BCrypt equivalent */
+    if (rsa_md_type_to_algorithm(md_type, &md_alg) != 1)
+        goto done;
+
+    if (rsa_padding_type_to_flag(RSA_PKCS1_PSS_PADDING, &padding_flag) != 1)
+        goto done;
+
+    pss_info.pszAlgId = md_alg;
+    pss_info.cbSalt = pss_saltlen;
+    padding_info = &pss_info;
+
+    /* Do the actual signing with the given padding */
+    if (rsa_verify_digest(h_key, padding_info, padding_flag, dgst, dgstlen, sig,
+                          siglen) != 1)
+        goto done;
+
+    result = 1;
+
+done:
+    rsa_bcrypt_release(h_key);
+
+    CMN_DBG_API_LEAVE;
     return result;
 }

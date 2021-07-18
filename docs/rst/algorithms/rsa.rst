@@ -21,7 +21,7 @@ Also, when selecting which message digest to use when signing, note that only th
 Control commands
 ----------------
 
-There are no RSA-specific control commands.
+The OpenSSL macro `EVP_PKEY_CTX_set_rsa_padding <https://www.openssl.org/docs/man1.1.1/man3/EVP_PKEY_CTX_set_rsa_padding.html>`_ translates to a control command that is supported for the values ``RSA_PKCS1_PADDING`` and ``RSA_PKCS1_PSS_PADDING``, when appropriate.
 
 
 .. _algorithms_rsa_issues:
@@ -29,4 +29,4 @@ There are no RSA-specific control commands.
 Known issues or limitations
 ---------------------------
 
-The OpenSSL implementation of the RSA sign and verify functionality prevents any engine from supporting padding other than RSA-PKCS#1 v1.5 padding (``RSA_PKCS1_PADDING``). In particular, `the Probabilistic Signature Scheme RSA-PSS <https://en.wikipedia.org/wiki/Probabilistic_signature_scheme>`_ (``RSA_PKCS1_PSS_PADDING``) -- the recommended replacement for RSA-PKCS#1 v1.5 padding -- is not available.
+The `OAEP padding scheme <https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding>`_ is currently not supported. 

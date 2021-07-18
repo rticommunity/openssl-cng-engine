@@ -1,5 +1,5 @@
 
-// (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+// (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@
 
 static bcrypt_testing::unique_EVP_PKEY
 construct_hardcoded_rsa_key_public(
-    const bcrypt_testing::Number &num_modulo,
+    const bcrypt_testing::Number &num_modulus,
     const bcrypt_testing::Number &num_exponent)
 {
-    bcrypt_testing::unique_BIGNUM bn_modulo(
-        BN_bin2bn(num_modulo.data(), (int)num_modulo.size(), NULL));
-    if (!bn_modulo) throw bcrypt_testing::ossl_error();
+    bcrypt_testing::unique_BIGNUM bn_modulus(
+        BN_bin2bn(num_modulus.data(), (int)num_modulus.size(), NULL));
+    if (!bn_modulus) throw bcrypt_testing::ossl_error();
 
     bcrypt_testing::unique_BIGNUM bn_exponent(
         BN_bin2bn(num_exponent.data(), (int)num_exponent.size(), NULL));
@@ -44,7 +44,7 @@ construct_hardcoded_rsa_key_public(
 
     // The only variant is set0, but our managed pointers will always invoke
     //   BN_free when going out of scope. Therefore, duplicate the BNs
-    if (RSA_set0_key(rsa.get(), BN_dup(bn_modulo.get()),
+    if (RSA_set0_key(rsa.get(), BN_dup(bn_modulus.get()),
         BN_dup(bn_exponent.get()), NULL) != 1)
         throw bcrypt_testing::ossl_error();
 
@@ -61,13 +61,13 @@ construct_hardcoded_rsa_key_public(
 // For a description of the algorithm, check out HAC section 8.2.2
 //   (HAC = Handbook of Applied Cryptography)
 // Note: this function is just for fun and convenience.
-//   You may use it when adding new tests that include the modulo
+//   You may use it when adding new tests that include the modulus
 //   but not its prime factors, like the NIST vectors do. Once you have
 //   calculated the primes using this function, you can add them to the
 //   test parameters.
 static bool
-factorize_modulo(
-    const BIGNUM *modulo,
+factorize_modulus(
+    const BIGNUM *modulus,
     const BIGNUM *exponent,
     const BIGNUM *priv_key,
     BIGNUM *p_inout,
@@ -99,7 +99,7 @@ factorize_modulo(
     }
 
     // Need to compare to n-1 at some point, so create its BN
-    bcrypt_testing::unique_BIGNUM n_min_1(BN_dup(modulo));
+    bcrypt_testing::unique_BIGNUM n_min_1(BN_dup(modulus));
     if (!n_min_1) throw bcrypt_testing::ossl_error();
     // n - 1
     if (BN_sub_word(n_min_1.get(), 1) != 1) throw bcrypt_testing::ossl_error();
@@ -119,7 +119,7 @@ factorize_modulo(
         // a^(2^(i-1)t) (in the loop), starting with i = 1
         bcrypt_testing::unique_BIGNUM a_pow_prev(BN_new());
         if (!a_pow_prev) throw bcrypt_testing::ossl_error();
-        if (BN_mod_exp(a_pow_prev.get(), a.get(), t.get(), modulo, ctx.get()) != 1)
+        if (BN_mod_exp(a_pow_prev.get(), a.get(), t.get(), modulus, ctx.get()) != 1)
             throw bcrypt_testing::ossl_error();
 
         // a^((2^i)t) (in the loop)
@@ -130,7 +130,7 @@ factorize_modulo(
         for (unsigned int i = 1; (i <= s) && !found && !no_fit; i++) {
             // Next power in the sequence
             if (BN_mod_mul(a_pow.get(), a_pow_prev.get(), a_pow_prev.get(),
-                modulo, ctx.get()) != 1)
+                modulus, ctx.get()) != 1)
                 throw bcrypt_testing::ossl_error();
 
             // Check if it is equal to 1
@@ -146,12 +146,12 @@ factorize_modulo(
                     // This is it, calculate GCD of a^(2^(i-1)t)-1 and n
                     if (BN_sub_word(a_pow_prev.get(), 1) != 1)
                         throw bcrypt_testing::ossl_error();
-                    if (BN_gcd(p_inout, a_pow_prev.get(), modulo, ctx.get()) != 1)
+                    if (BN_gcd(p_inout, a_pow_prev.get(), modulus, ctx.get()) != 1)
                         throw bcrypt_testing::ossl_error();
 
                     // q = n / p. Double check remainder is 0
                     bcrypt_testing::unique_BIGNUM rem(BN_new());
-                    if (BN_div(q_inout, rem.get(), modulo, p_inout, ctx.get()) != 1)
+                    if (BN_div(q_inout, rem.get(), modulus, p_inout, ctx.get()) != 1)
                         throw bcrypt_testing::ossl_error();
                     if (BN_is_zero(rem.get()) != 1)
                         throw bcrypt_testing::ossl_error();
@@ -170,9 +170,9 @@ factorize_modulo(
 // For some reason, these lines make VS identify an 8 bytes mem leak
 #include <openssl/crypto.h>
     {
-        char *modulo_str = BN_bn2hex(modulo);
-        std::cerr << "modulo: " << modulo_str << std::endl;
-        OPENSSL_free(modulo_str);
+        char *modulus_str = BN_bn2hex(modulus);
+        std::cerr << "modulus: " << modulus_str << std::endl;
+        OPENSSL_free(modulus_str);
 
         if (found) {
             char *p_str = BN_bn2hex(p_inout);
@@ -192,15 +192,15 @@ factorize_modulo(
 
 static bcrypt_testing::unique_EVP_PKEY
 construct_hardcoded_rsa_key(
-    const bcrypt_testing::Number &num_modulo,
+    const bcrypt_testing::Number &num_modulus,
     const bcrypt_testing::Number &num_exponent,
     const bcrypt_testing::Number &num_priv_key,
     const std::optional<bcrypt_testing::Number> &num_prime1,
     const std::optional<bcrypt_testing::Number> &num_prime2)
 {
-    bcrypt_testing::unique_BIGNUM bn_modulo(
-        BN_bin2bn(num_modulo.data(), (int)num_modulo.size(), NULL));
-    if (!bn_modulo) throw bcrypt_testing::ossl_error();
+    bcrypt_testing::unique_BIGNUM bn_modulus(
+        BN_bin2bn(num_modulus.data(), (int)num_modulus.size(), NULL));
+    if (!bn_modulus) throw bcrypt_testing::ossl_error();
 
     bcrypt_testing::unique_BIGNUM bn_exponent(
         BN_bin2bn(num_exponent.data(), (int)num_exponent.size(), NULL));
@@ -215,7 +215,7 @@ construct_hardcoded_rsa_key(
 
     // The only variant is set0, but our managed pointers will always invoke
     //   BN_free when going out of scope. Therefore, duplicate the BNs
-    if (RSA_set0_key(rsa.get(), BN_dup(bn_modulo.get()),
+    if (RSA_set0_key(rsa.get(), BN_dup(bn_modulus.get()),
         BN_dup(bn_exponent.get()), BN_dup(bn_privkey.get())) != 1)
         throw bcrypt_testing::ossl_error();
 
@@ -242,7 +242,7 @@ construct_hardcoded_rsa_key(
         bcrypt_testing::unique_BIGNUM bn_prime2(BN_new());
         if (!bn_prime2) throw bcrypt_testing::ossl_error();
 
-        if (!factorize_modulo(bn_modulo.get(), bn_exponent.get(),
+        if (!factorize_modulus(bn_modulus.get(), bn_exponent.get(),
             bn_privkey.get(), bn_prime1.get(), bn_prime2.get()))
             throw bcrypt_testing::ossl_error();
 
@@ -265,7 +265,6 @@ construct_hardcoded_rsa_key(
 // ----------------------------------------------------------------------------
 //
 // RSA value-parameterized tests for signature verification
-// Note: they currently all assume SHA-256
 //
 // ----------------------------------------------------------------------------
 
@@ -338,8 +337,8 @@ static const RsaVerifyParams rsa_verify_params[] = {
     RSA_PKCS1_PADDING,
     // passes
     true
-}
-, {
+},
+{
     // sha_nid
     NID_sha256,
     // key, 2048 bits
@@ -454,47 +453,81 @@ static const RsaVerifyParams rsa_verify_params[] = {
     RSA_PKCS1_PADDING,
     // passes
     false
-}
-
-#ifdef PSS_PADDING_SUPPORTED
-// Due to OpenSSL's implementation of PSS, the BCrypt engine does not support it.
-, {
-    // key
+},
+{
+    // sha_nid
+    NID_sha256,
+    // key, 2048 bits
     {
         // modulus
-        "c4b9ea11f21cd93c01f56c4219db7d2e52581a6c968705c06588c036b6f51a27"
-        "de43ba0006d6e54d9ee20dd8bc1c4787b4c45e9545cf98c7872100f6c3492f5c"
-        "3f1ce2d28caf10fa611cc4a4ec94543fbb872ef0fc8bb9558360960e4e386874"
-        "d3beef4e9662e8779304e8d09bfc290a6fc19e9908e8eb49336ef02224107bd7"
-        "4de231f2610d76fa834baad342e87f5ffbd56ee8b459702425109af864401b71"
-        "3cd9e96a01137a860c3079e13704d3328003136631062b198be8d644ed99a0c6"
-        "2f94cf7971a0f2875592f35e362abcf2845a11ee98e5f01a515abd0d03646da2"
-        "8123b45cea4cbfd7de9bc399fd9f05349a2d0386516f70f5c9a9970d3231ff73",
+        "cea80475324c1dc8347827818da58bac069d3419c614a6ea1ac6a3b510dcd72c"
+        "c516954905e9fef908d45e13006adf27d467a7d83c111d1a5df15ef293771aef"
+        "b920032a5bb989f8e4f5e1b05093d3f130f984c07a772a3683f4dc6fb28a9681"
+        "5b32123ccdd13954f19d5b8b24a103e771a34c328755c65ed64e1924ffd04d30"
+        "b2142cc262f6e0048fef6dbc652f21479ea1c4b1d66d28f4d46ef7185e390cbf"
+        "a2e02380582f3188bb94ebbf05d31487a09aff01fcbb4cd4bfd1f0a833b38c11"
+        "813c84360bb53c7d4481031c40bad8713bb6b835cb08098ed15ba31ee4ba728a"
+        "8c8e10f7294e1b4163b7aee57277bfd881a6f9d43e02c6925aa3a043fb7fb78d",
         // exponent
-        "24f1bf"
+        "260445",
     },
     // was_signed
-    "f991a40a6c3cda01f1a2fed01ca0cf425588a071205eb997a147fa205f3ec104"
-    "48090e53f56be512309cf445b3f6764d33f157749d5199c7a09ef6246bd5c793"
-    "b85d24d9093c4d4b318b48e11727cc8bb7aa5ec8699aba7466e074e1887bdf2a"
-    "51752ec42f16d956fe5943cbcf9c99a5e89bfd940c9fe447fcf3bc823d98d371",
+    "0c8491fc348d341fe85c46a56115f26035c59e6a2be765c44e2ec83d407ea096"
+    "d13b57e3d0c758342246c47510a56793e5daeae1b96d4ab988378966876aa341"
+    "b7d1c31bba59b7dbe6d1a16898eef0caca928f8ce84d5c64e025dc1679922d95"
+    "e5cd3c6b994a385c5c8346469ef8764c0c74f5336191850c7f7e2b14be0027d8",
     // signature
-    "6b42514e88d93079d158336897dc34b450e424d61f6ddcf86fe8c9a368ae8a22"
-    "c4ee4084c978b5169379da10ae6a6ae8cd80028e198cd0a8db532cd78a409f53"
-    "baf7d231b545835b0dc06d594d76868d986889419a959268fd321bbc8bad5e80"
-    "0e452fe1a1a2a5a851d542494473deb425171a2f37ffc4cf0600a8d561b20f77"
-    "7407bbef1b596f92e518c0929e8bd52b015c2718d14443a56056f65015515673"
-    "deef32ae5399ae71f97873ec1508f8c41d6a66a13017685134e5425c4b580a7f"
-    "6986c26fb272f0ed215d6698dcec9e7c5258173b295b3611869254a538945de9"
-    "52dedf291837df0d7a205e1b76b01140df4edce3afe7245d46ee3b292bb117b1",
+    "7e7a10457259b66580a072c0c934df6fd4704968a0d4ecf3a629138d0137c53b"
+    "bd5a0b2cbcc41b3984edb33ee1fdde9028d4e199a6301596fe4eb5864c407b29"
+    "2c7c02a1b0df8f798099dbe17f037ec1f3cc58ea203ccae398e58bc3973b28be"
+    "e3bfd0ad4d4e9e00eb2e2834d9e165a17b17117d3b023304bfebc2250bcf616e"
+    "a81e3b95f076181da4fb36663aa4615bed957ca8ee18f9f95bb94a0222894597"
+    "42275f66b5b1b8f475d4b0be2979dd796232e6bda4c4f9e27b7df1fd71399849"
+    "e2ecccf169a011698d21559cd8cd2e91604044f2aed631517d848241e052fd86"
+    "f2ef7c4029adc7e863bda851ea2f259cd381df2b699a8e679ed516798ebcb0f3",
     // padding_type
     RSA_PKCS1_PSS_PADDING,
     // passes
     true
+},
+{
+    // Same parameters as above, but last byte of signature has been modified
+    // sha_nid
+    NID_sha256,
+    // key, 2048 bits
+    {
+        // modulus
+        "cea80475324c1dc8347827818da58bac069d3419c614a6ea1ac6a3b510dcd72c"
+        "c516954905e9fef908d45e13006adf27d467a7d83c111d1a5df15ef293771aef"
+        "b920032a5bb989f8e4f5e1b05093d3f130f984c07a772a3683f4dc6fb28a9681"
+        "5b32123ccdd13954f19d5b8b24a103e771a34c328755c65ed64e1924ffd04d30"
+        "b2142cc262f6e0048fef6dbc652f21479ea1c4b1d66d28f4d46ef7185e390cbf"
+        "a2e02380582f3188bb94ebbf05d31487a09aff01fcbb4cd4bfd1f0a833b38c11"
+        "813c84360bb53c7d4481031c40bad8713bb6b835cb08098ed15ba31ee4ba728a"
+        "8c8e10f7294e1b4163b7aee57277bfd881a6f9d43e02c6925aa3a043fb7fb78d",
+        // exponent
+        "260445",
+    },
+    // was_signed
+    "0c8491fc348d341fe85c46a56115f26035c59e6a2be765c44e2ec83d407ea096"
+    "d13b57e3d0c758342246c47510a56793e5daeae1b96d4ab988378966876aa341"
+    "b7d1c31bba59b7dbe6d1a16898eef0caca928f8ce84d5c64e025dc1679922d95"
+    "e5cd3c6b994a385c5c8346469ef8764c0c74f5336191850c7f7e2b14be0027d8",
+    // signature
+    "7e7a10457259b66580a072c0c934df6fd4704968a0d4ecf3a629138d0137c53b"
+    "bd5a0b2cbcc41b3984edb33ee1fdde9028d4e199a6301596fe4eb5864c407b29"
+    "2c7c02a1b0df8f798099dbe17f037ec1f3cc58ea203ccae398e58bc3973b28be"
+    "e3bfd0ad4d4e9e00eb2e2834d9e165a17b17117d3b023304bfebc2250bcf616e"
+    "a81e3b95f076181da4fb36663aa4615bed957ca8ee18f9f95bb94a0222894597"
+    "42275f66b5b1b8f475d4b0be2979dd796232e6bda4c4f9e27b7df1fd71399849"
+    "e2ecccf169a011698d21559cd8cd2e91604044f2aed631517d848241e052fd86"
+    "f2ef7c4029adc7e863bda851ea2f259cd381df2b699a8e679ed516798ebcb0f2",
+    // padding_type
+    RSA_PKCS1_PSS_PADDING,
+    // passes
+    false
 }
-#endif
 };
-
 
 class RsaVerifyTest :
     public bcrypt_testing::Test,
@@ -517,7 +550,7 @@ public:
 
         // Initialize members from them
         digest_ = EVP_get_digestbynid(params.sha_nid);
-        key_signer_ = construct_hardcoded_rsa_key_public(
+        key_signer_public_ = construct_hardcoded_rsa_key_public(
             num_key_modulus, num_key_exponent);
         was_signed_ = was_signed;
         signature_ = signature;
@@ -526,7 +559,7 @@ public:
     }
 
     const EVP_MD *digest_;
-    bcrypt_testing::unique_EVP_PKEY key_signer_;
+    bcrypt_testing::unique_EVP_PKEY key_signer_public_;
     bcrypt_testing::Bytes was_signed_;
     bcrypt_testing::Number signature_;
     int padding_type_;
@@ -545,8 +578,9 @@ TEST_P(RsaVerifyTest, Verify)
     // destroyed by ossl when the md ctx is destroyed
     EVP_PKEY_CTX *pkey_ctx_raw = NULL;
     OSSL_ASSERT_EQ(1, EVP_DigestVerifyInit(md_verify_ctx.get(),
-        &pkey_ctx_raw, digest_, NULL, key_signer_.get()));
+        &pkey_ctx_raw, digest_, NULL, key_signer_public_.get()));
     OSSL_ASSERT_EQ(1, EVP_PKEY_CTX_set_rsa_padding(pkey_ctx_raw, padding_type_));
+    //OSSL_ASSERT_EQ(1, EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx_raw, 20));
     OSSL_ASSERT_EQ(1, EVP_DigestVerifyUpdate(md_verify_ctx.get(),
         was_signed_.data(), was_signed_.size()));
     if (passes_) {
@@ -568,13 +602,18 @@ INSTANTIATE_TEST_CASE_P(RsaVerifyTests, RsaVerifyTest,
     testing::ValuesIn(rsa_verify_params));
 
 
+// ----------------------------------------------------------------------------
+//
+// RSA test for key generation
+//
+// ----------------------------------------------------------------------------
+
 class RsaGenerateTest : public bcrypt_testing::Test
 {
     // Nothing, this class is just to make sure the bcrypt testing
     //   baseclass gets invoked.
 };
 
-// Not yet supported by the engine
 TEST_F(RsaGenerateTest, SimpleGenerate)
 {
     bcrypt_testing::unique_EVP_PKEY_CTX key_ctx(
@@ -589,28 +628,34 @@ TEST_F(RsaGenerateTest, SimpleGenerate)
 }
 
 
+// ----------------------------------------------------------------------------
+//
+// RSA value-parameterized tests for signature creation and verification
+// For deterministic signatures, compare signature contents as well
+//
+// ----------------------------------------------------------------------------
 
 // Parameters for this type of test
-struct RsaSignParams {
+struct RsaSignVerifyParams {
     int sha_nid;
     struct {
-        const char *modulo;
+        const char *modulus;
         const char *exponent;
         const char *priv;
         const char *prime1;
         const char *prime2;
     } key;
     const char *to_be_signed;
-    const char *signature;
+    const char *pkcs1_signature;
 };
 
-static const RsaSignParams rsa_sign_params[] = {
+static const RsaSignVerifyParams rsa_sign_verify_params[] = {
 {
     // sha_nid
     NID_sha256,
     // key, 2048 bits
     {
-        // modulo
+        // modulus
         "cea80475324c1dc8347827818da58bac069d3419c614a6ea1ac6a3b510dcd72c"
         "c516954905e9fef908d45e13006adf27d467a7d83c111d1a5df15ef293771aef"
         "b920032a5bb989f8e4f5e1b05093d3f130f984c07a772a3683f4dc6fb28a9681"
@@ -646,7 +691,7 @@ static const RsaSignParams rsa_sign_params[] = {
     "d13b57e3d0c758342246c47510a56793e5daeae1b96d4ab988378966876aa341"
     "b7d1c31bba59b7dbe6d1a16898eef0caca928f8ce84d5c64e025dc1679922d95"
     "e5cd3c6b994a385c5c8346469ef8764c0c74f5336191850c7f7e2b14be0027d8",
-    // signature
+    // pkcs1_signature
     "cacc8d9f5ecd34c143488461135c4951676145c6e472b92f12f758046f172142"
     "fa388f285f3fff068242028829047e248059ed4fd39d2c5ade469dc7c39345e5"
     "114950d2031cc7465fe712c4041d05c756d3f2d88a46ceb99f2e24a52e958a03"
@@ -661,7 +706,7 @@ static const RsaSignParams rsa_sign_params[] = {
     NID_sha384,
     // key, 2048 bits
     {
-        // modulo
+        // modulus
         "cea80475324c1dc8347827818da58bac069d3419c614a6ea1ac6a3b510dcd72c"
         "c516954905e9fef908d45e13006adf27d467a7d83c111d1a5df15ef293771aef"
         "b920032a5bb989f8e4f5e1b05093d3f130f984c07a772a3683f4dc6fb28a9681"
@@ -697,7 +742,7 @@ static const RsaSignParams rsa_sign_params[] = {
     "ca6200a914cd2834a9b3c79fcd59e26e457e0683bc33d49267edbdd6e5d90902"
     "696f1e7b1a4affc4ba371339868c28015ebbb73e262669866c35db974ba69e46"
     "8f2583b9191d15d686cd66fb0b9e0ff0a3b4721a6dc342f14f2446b4e028595b",
-    // signature
+    // pkcs1_signature
     "3974900bec3fcb081f0e5a299adf30d087aabaa633911410e87a4979bbe3fa80"
     "c3abcf221686399a49bc2f1e5ac40c35df1700e4b9cb7c805a896646573f4a57"
     "0a9704d2a2e6baee4b43d916906884ad3cf283529ea265e8fcb5cc1bdf7b7dee"
@@ -712,7 +757,7 @@ static const RsaSignParams rsa_sign_params[] = {
     NID_sha512,
     // key, 2048 bits
     {
-        // modulo
+        // modulus
         "cea80475324c1dc8347827818da58bac069d3419c614a6ea1ac6a3b510dcd72c"
         "c516954905e9fef908d45e13006adf27d467a7d83c111d1a5df15ef293771aef"
         "b920032a5bb989f8e4f5e1b05093d3f130f984c07a772a3683f4dc6fb28a9681"
@@ -748,7 +793,7 @@ static const RsaSignParams rsa_sign_params[] = {
     "d5bc98bec922d5f2ac4168b056da176ef3ba91f6b699ba6acc4144868ff37f26"
     "fd06720868d12ad26ecb52572cf10416af68df03ab645a8b704857d2190ffc3f"
     "07eabe3a8e2abe34ed6159e884c4fae141d4333d5c3e0db044ff9cccd9cbd67f",
-    // signature
+    // pkcs1_signature
     "148af61ed5ea8a87a08b3f403929bf8031db4fd3999b64409ba489f97a3ee520"
     "8ea4202d2ec18734f615003a51f77441085be6ac0f11810ffa2dad58f0e186d5"
     "520ac2b8a5d3966e8d2abb8074e13b50a4e7de83be10a66fdc7ca18118c5774f"
@@ -762,18 +807,18 @@ static const RsaSignParams rsa_sign_params[] = {
 };
 
 
-class RsaSignTest :
+class RsaSignVerifyTest :
     public bcrypt_testing::Test,
-    public testing::WithParamInterface<RsaSignParams>
+    public testing::WithParamInterface<RsaSignVerifyParams>
 {
 public:
-    RsaSignTest()
+    RsaSignVerifyTest()
     {
-        RsaSignParams params = GetParam();
+        RsaSignVerifyParams params = GetParam();
 
         // Convert parameters into their number/bytes equivalents
-        bcrypt_testing::Number num_modulo =
-            bcrypt_testing::number_from_string(params.key.modulo).value();
+        bcrypt_testing::Number num_modulus =
+            bcrypt_testing::number_from_string(params.key.modulus).value();
         bcrypt_testing::Number num_exponent =
             bcrypt_testing::number_from_string(params.key.exponent).value();
         bcrypt_testing::Number num_private =
@@ -785,48 +830,97 @@ public:
         bcrypt_testing::Bytes bytes_to_be_signed =
             bcrypt_testing::bytes_from_string(params.to_be_signed).value();
         bcrypt_testing::Number num_signature =
-            bcrypt_testing::number_from_string(params.signature).value();
+            bcrypt_testing::number_from_string(params.pkcs1_signature).value();
 
         // Initialize members from them
         digest_ = EVP_get_digestbynid(params.sha_nid);
         key_signer_ = construct_hardcoded_rsa_key(
-            num_modulo, num_exponent, num_private, num_prime1, num_prime2);
+            num_modulus, num_exponent, num_private, num_prime1, num_prime2);
+        key_signer_public_ = construct_hardcoded_rsa_key_public(
+            num_modulus, num_exponent);
         to_be_signed_ = bytes_to_be_signed;
-        signature_ = num_signature;
+        pkcs1_signature_ = num_signature;
     }
 
     const EVP_MD *digest_;
     bcrypt_testing::unique_EVP_PKEY key_signer_;
+    bcrypt_testing::unique_EVP_PKEY key_signer_public_;
     bcrypt_testing::Bytes to_be_signed_;
-    bcrypt_testing::Number signature_;
+    bcrypt_testing::Number pkcs1_signature_;
 };
 
 
-TEST_P(RsaSignTest, Sign)
+TEST_P(RsaSignVerifyTest, Sign)
 {
-    size_t signature_len;
-
     OSSL_ASSERT_NE(nullptr, digest_);
 
-    // Create signature
-    bcrypt_testing::unique_EVP_MD_CTX md_sign_ctx(EVP_MD_CTX_new());
-    OSSL_ASSERT_TRUE(md_sign_ctx);
-    OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(),
-        NULL, digest_, NULL, key_signer_.get()));
-    OSSL_ASSERT_EQ(1, EVP_DigestSignUpdate(md_sign_ctx.get(),
-        to_be_signed_.data(), to_be_signed_.size()));
-    OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(),
-        NULL, &signature_len));
-    std::vector<unsigned char>signature(signature_len);
-    OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(),
-        &signature[0], &signature_len));
-    ASSERT_LE(signature_len, signature.size());
-    signature.resize(signature_len);
-    ASSERT_EQ(signature, signature_);
+    // Create signature with PKCS1 padding and compare to expected signature
+    {
+        size_t signature_len;
+
+        bcrypt_testing::unique_EVP_MD_CTX md_sign_ctx(EVP_MD_CTX_new());
+        OSSL_ASSERT_TRUE(md_sign_ctx);
+        OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(), NULL, digest_,
+                                             NULL, key_signer_.get()));
+        OSSL_ASSERT_EQ(1, EVP_DigestSignUpdate(md_sign_ctx.get(),
+                                               to_be_signed_.data(),
+                                               to_be_signed_.size()));
+        OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), NULL,
+                                              &signature_len));
+        std::vector<unsigned char> signature(signature_len);
+        OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), &signature[0],
+                                              &signature_len));
+        ASSERT_LE(signature_len, signature.size());
+        signature.resize(signature_len);
+        ASSERT_EQ(signature, pkcs1_signature_);
+    }
+
+    // Create signature with PSS padding and then verify it
+    {
+        size_t signature_len;
+
+        bcrypt_testing::unique_EVP_MD_CTX md_sign_ctx(EVP_MD_CTX_new());
+        OSSL_ASSERT_TRUE(md_sign_ctx);
+        // No automatic memory management for this ctx because it gets
+        // destroyed by ossl when the md ctx is destroyed
+        EVP_PKEY_CTX *p_sign_ctx = NULL;
+        OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(), &p_sign_ctx, digest_,
+                                             NULL, key_signer_.get()));
+        OSSL_ASSERT_EQ(1, EVP_PKEY_CTX_set_rsa_padding(p_sign_ctx,
+                                                       RSA_PKCS1_PSS_PADDING));
+        // Not changing any of the PSS parameters here -- need to add tests
+        // for that
+        OSSL_ASSERT_EQ(1, EVP_DigestSignUpdate(md_sign_ctx.get(),
+                                               to_be_signed_.data(),
+                                               to_be_signed_.size()));
+        OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), NULL,
+                                              &signature_len));
+        std::vector<unsigned char> signature(signature_len);
+        OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), &signature[0],
+                                              &signature_len));
+        ASSERT_LE(signature_len, signature.size());
+        signature.resize(signature_len);
+
+        // Verify the signature calculated
+        bcrypt_testing::unique_EVP_MD_CTX md_verify_ctx(EVP_MD_CTX_new());
+        OSSL_ASSERT_TRUE(md_verify_ctx);
+        // No automatic memory management for this ctx because it gets
+        // destroyed by ossl when the md ctx is destroyed
+        EVP_PKEY_CTX *p_vfy_ctx = NULL;
+        OSSL_ASSERT_EQ(1, EVP_DigestVerifyInit(md_verify_ctx.get(),
+            &p_vfy_ctx, digest_, NULL, key_signer_public_.get()));
+        OSSL_ASSERT_EQ(1, EVP_PKEY_CTX_set_rsa_padding(
+            p_vfy_ctx, RSA_PKCS1_PSS_PADDING));
+        OSSL_ASSERT_EQ(1, EVP_DigestVerifyUpdate(md_verify_ctx.get(),
+            to_be_signed_.data(), to_be_signed_.size()));
+        // Verification is expected to succeed
+        OSSL_ASSERT_EQ(1, EVP_DigestVerifyFinal(md_verify_ctx.get(),
+            signature.data(), signature.size()));
+    }
 }
 
-INSTANTIATE_TEST_CASE_P(RsaSignTests, RsaSignTest,
-    testing::ValuesIn(rsa_sign_params));
+INSTANTIATE_TEST_CASE_P(RsaSignVerifyTests, RsaSignVerifyTest,
+    testing::ValuesIn(rsa_sign_verify_params));
 
 
 // ----------------------------------------------------------------------------

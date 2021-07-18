@@ -16,6 +16,8 @@
 #include "test_ncrypt.h"
 #include "test_ncrypt_ossl.h"
 
+#include <openssl/rsa.h> // for padding definitions
+
 #include <list>
 
 // Test Fixture for all load-related tests
@@ -94,33 +96,82 @@ TEST_P(KeysTest, SignVerify)
     // Walk over all previously loaded keys
     for (std::shared_ptr<EVP_PKEY> pkey : pkeys_)
     {
-        ncrypt_testing::unique_EVP_MD_CTX md_sign_ctx(EVP_MD_CTX_new());
-        OSSL_ASSERT_TRUE(md_sign_ctx);
-        const EVP_MD *md_type = EVP_sha256();
-        OSSL_ASSERT_NE(nullptr, md_type);
+        // "Standard" padding first, let OpenSSL figure it out
+        {
+            ncrypt_testing::unique_EVP_MD_CTX md_sign_ctx(EVP_MD_CTX_new());
+            OSSL_ASSERT_TRUE(md_sign_ctx);
+            const EVP_MD *md_type = EVP_sha256();
+            OSSL_ASSERT_NE(nullptr, md_type);
 
-        // Sign using the key just loaded
-        OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(),
-            NULL, md_type, NULL, pkey.get()));
-        OSSL_ASSERT_EQ(1, EVP_DigestSignUpdate(md_sign_ctx.get(),
-            MESSAGE, MESSAGE_LEN));
-        size_t signature_len;
-        OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(),
-            NULL, &signature_len));
-        std::vector<unsigned char> signature(signature_len);
-        OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(),
-            &signature[0], &signature_len));
-        signature.resize(signature_len);
+            // Sign using the key just loaded
+            OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(), NULL,
+                md_type, NULL, pkey.get()));
+            OSSL_ASSERT_EQ(1, EVP_DigestSignUpdate(md_sign_ctx.get(), MESSAGE,
+                MESSAGE_LEN));
+            size_t signature_len;
+            OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), NULL,
+               &signature_len));
+            std::vector<unsigned char> signature(signature_len);
+            OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(),
+                &signature[0], &signature_len));
+            signature.resize(signature_len);
 
-        // Verify the signature using the same key
-        ncrypt_testing::unique_EVP_MD_CTX md_verify_ctx(EVP_MD_CTX_create());
-        OSSL_ASSERT_TRUE(md_verify_ctx);
-        OSSL_ASSERT_EQ(1, EVP_DigestVerifyInit(md_verify_ctx.get(),
-            NULL, md_type, NULL, pkey.get()));
-        OSSL_ASSERT_EQ(1, EVP_DigestVerifyUpdate(md_verify_ctx.get(),
-            MESSAGE, MESSAGE_LEN));
-        OSSL_ASSERT_EQ(1, EVP_DigestVerifyFinal(md_verify_ctx.get(),
-            &signature[0], signature.size()));
+            // Verify the signature using the same key
+            ncrypt_testing::unique_EVP_MD_CTX md_verify_ctx(EVP_MD_CTX_new());
+            OSSL_ASSERT_TRUE(md_verify_ctx);
+            OSSL_ASSERT_EQ(1, EVP_DigestVerifyInit(md_verify_ctx.get(), NULL,
+                md_type, NULL, pkey.get()));
+            OSSL_ASSERT_EQ(1, EVP_DigestVerifyUpdate(md_verify_ctx.get(),
+                MESSAGE, MESSAGE_LEN));
+            OSSL_ASSERT_EQ(1, EVP_DigestVerifyFinal(md_verify_ctx.get(),
+                &signature[0], signature.size()));
+        }
+
+        // For RSA, use PSS padding next
+        if (EVP_PKEY_base_id(pkey.get()) == EVP_PKEY_RSA) {
+            ncrypt_testing::unique_EVP_MD_CTX md_sign_ctx(EVP_MD_CTX_new());
+            OSSL_ASSERT_TRUE(md_sign_ctx);
+            const EVP_MD *md_type = EVP_sha256();
+            OSSL_ASSERT_NE(nullptr, md_type);
+
+            // Sign using the key just loaded, using PSS padding
+            // No automatic memory management for this ctx because it gets
+            // destroyed by ossl when the md ctx is destroyed
+            EVP_PKEY_CTX *p_sign_ctx = NULL;
+            OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(), &p_sign_ctx,
+                md_type, NULL, pkey.get()));
+            OSSL_ASSERT_EQ(1, EVP_PKEY_CTX_set_rsa_padding(p_sign_ctx,
+               RSA_PKCS1_PSS_PADDING));
+            // Not changing any of the PSS parameters here -- need to add tests
+            // for that
+            OSSL_ASSERT_EQ(1, EVP_DigestSignInit(md_sign_ctx.get(), NULL,
+                md_type, NULL, pkey.get()));
+            OSSL_ASSERT_EQ(1, EVP_DigestSignUpdate(md_sign_ctx.get(), MESSAGE,
+                MESSAGE_LEN));
+            size_t signature_len;
+            OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), NULL,
+               &signature_len));
+            std::vector<unsigned char> signature(signature_len);
+            OSSL_ASSERT_EQ(1, EVP_DigestSignFinal(md_sign_ctx.get(), &signature[0],
+                &signature_len));
+            signature.resize(signature_len);
+
+            // Verify the signature using the same key
+            ncrypt_testing::unique_EVP_MD_CTX md_verify_ctx(EVP_MD_CTX_new());
+            OSSL_ASSERT_TRUE(md_verify_ctx);
+            // No automatic memory management for this ctx because it gets
+            // destroyed by ossl when the md ctx is destroyed
+            EVP_PKEY_CTX *p_vfy_ctx = NULL;
+            OSSL_ASSERT_EQ(1, EVP_DigestVerifyInit(md_verify_ctx.get(),
+                &p_vfy_ctx, md_type, NULL, pkey.get()));
+            OSSL_ASSERT_EQ(1, EVP_PKEY_CTX_set_rsa_padding(
+                p_vfy_ctx, RSA_PKCS1_PSS_PADDING));
+            OSSL_ASSERT_EQ(1, EVP_DigestVerifyUpdate(md_verify_ctx.get(),
+                MESSAGE, MESSAGE_LEN));
+            // Verification is expected to succeed
+            OSSL_ASSERT_EQ(1, EVP_DigestVerifyFinal(md_verify_ctx.get(),
+               &signature[0], signature.size()));
+        }
     }
 }
 

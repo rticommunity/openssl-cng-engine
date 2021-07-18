@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,6 +132,8 @@ static ERR_STRING_DATA EBCRYPT_str_functions[] =
     F_ERR_INIT(bcrypt_pkey_hmac_signctx_init),
     F_ERR_INIT(bcrypt_pkey_hmac_signctx),
     F_ERR_INIT(bcrypt_pkey_hmac_ctrl),
+    F_ERR_INIT(bcrypt_pkey_rsa_sign),
+    F_ERR_INIT(bcrypt_pkey_rsa_verify),
     F_ERR_INIT(e_bcrypt_pkey_initialize),
     F_ERR_INIT(e_bcrypt_pkey_finalize),
     F_ERR_INIT(e_bcrypt_pkey_get),
@@ -153,6 +155,8 @@ static ERR_STRING_DATA EBCRYPT_str_functions[] =
     F_ERR_INIT(bcrypt_rsa_keygen),
     F_ERR_INIT(bcrypt_rsa_priv_dec),
     F_ERR_INIT(bcrypt_rsa_priv_enc),
+    F_ERR_INIT(bcrypt_rsa_pss_sign_digest),
+    F_ERR_INIT(bcrypt_rsa_pss_verify_digest),
     F_ERR_INIT(bcrypt_rsa_pub_dec),
     F_ERR_INIT(bcrypt_rsa_pub_enc),
     F_ERR_INIT(bcrypt_rsa_sign),
@@ -165,8 +169,9 @@ static ERR_STRING_DATA EBCRYPT_str_functions[] =
     F_ERR_INIT(rsa_ossl_to_rsa_bcrypt_private),
     F_ERR_INIT(rsa_ossl_to_rsa_bcrypt_public),
     F_ERR_INIT(rsa_padding_type_to_flag),
+    F_ERR_INIT(rsa_pss_saltlen_normalized),
     F_ERR_INIT(rsa_sign_digest),
-    F_ERR_INIT(rsa_verify_signed_digest),
+    F_ERR_INIT(rsa_verify_digest),
 
     /* e_bcrypt_secret.c */
     F_ERR_INIT(secret_derive),

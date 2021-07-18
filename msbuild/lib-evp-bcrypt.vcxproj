@@ -38,6 +38,7 @@
     <ClInclude Include="..\src\e_bcrypt_provider.h" />
     <ClInclude Include="..\src\e_bcrypt_rand.h" />
     <ClInclude Include="..\src\e_bcrypt_rsa.h" />
+    <ClInclude Include="..\src\e_bcrypt_rsa_lcl.h" />
     <ClInclude Include="..\src\e_bcrypt_secret.h" />
   </ItemGroup>
   <ItemGroup>

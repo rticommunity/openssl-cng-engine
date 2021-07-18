@@ -23,6 +23,7 @@
 #include "s_ncrypt_ec.h"
 #include "s_ncrypt_err.h"
 #include "s_ncrypt_loader.h"
+#include "s_ncrypt_pkey.h"
 #include "s_ncrypt_rsa.h"
 
 #include <openssl/store.h>
@@ -142,6 +143,7 @@ ncrypt_finish(ENGINE *engine)
 
     s_ncrypt_ec_finalize();
     s_ncrypt_rsa_finalize();
+    s_ncrypt_pkey_finalize();
 
     if (!ncrypt_engine_index_get(&ex_index))
         goto done;
@@ -336,6 +338,14 @@ ncrypt_initialize(ENGINE *engine)
     if (ERR_load_SNCRYPT_strings() != 1) {
         /* Not fatal, just mention it */
         CMN_DBG_ERROR("Can not load NCrypt engine error strings");
+    }
+
+    /* Set a pointer to a function that provides the PKEY methods. */
+    if (s_ncrypt_pkey_initialize() != 1)
+        goto done;
+    if (ENGINE_set_pkey_meths(engine, s_ncrypt_pkey_get) != 1) {
+        S_NCRYPT_osslerr(ENGINE_set_pkey_meths, "Initializing NCrypt engine");
+        goto done;
     }
 
     /* Create and register a store loader for NCrypt */

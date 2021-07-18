@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Copyright, Real-Time Innovations, Inc. (RTI)
+ * (c) 2020-2021 Copyright, Real-Time Innovations, Inc. (RTI)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,9 +112,12 @@ enum err_bcrypt_func_code {
     F_bcrypt_pkey_hmac_signctx_init,
     F_bcrypt_pkey_hmac_signctx,
     F_bcrypt_pkey_hmac_ctrl,
+    F_bcrypt_pkey_rsa_sign,
+    F_bcrypt_pkey_rsa_verify,
     F_e_bcrypt_pkey_initialize,
     F_e_bcrypt_pkey_finalize,
     F_e_bcrypt_pkey_get,
+    F_rsa_pss_saltlen_normalized,
 
     /* e_bcrypt_provider.c */
     F_alg_provider_open,
@@ -133,6 +136,8 @@ enum err_bcrypt_func_code {
     F_bcrypt_rsa_keygen,
     F_bcrypt_rsa_priv_dec,
     F_bcrypt_rsa_priv_enc,
+    F_bcrypt_rsa_pss_sign_digest,
+    F_bcrypt_rsa_pss_verify_digest,
     F_bcrypt_rsa_pub_dec,
     F_bcrypt_rsa_pub_enc,
     F_bcrypt_rsa_sign,
@@ -146,7 +151,7 @@ enum err_bcrypt_func_code {
     F_rsa_ossl_to_rsa_bcrypt_public,
     F_rsa_padding_type_to_flag,
     F_rsa_sign_digest,
-    F_rsa_verify_signed_digest,
+    F_rsa_verify_digest,
 
     /* e_bcrypt_secret.c */
     F_secret_derive,

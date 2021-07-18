@@ -207,7 +207,7 @@ void Test::TearDownTestCase()
         S_engine = NULL;
         // Would be nice if ENGINE_set_default(NULL, ENGINE_METHOD_ALL)
         //   did all these, but we have to do them manually
-        //ENGINE_unregister_pkey_meths(e);
+        ENGINE_unregister_pkey_meths(e);
         //ENGINE_unregister_ciphers(e);
         //ENGINE_unregister_digests(e);
         //ENGINE_unregister_EC(e);

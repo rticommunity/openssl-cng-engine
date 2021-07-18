@@ -19,6 +19,7 @@
     <ClCompile Include="..\src\s_ncrypt_ec.c" />
     <ClCompile Include="..\src\s_ncrypt_err.c" />
     <ClCompile Include="..\src\s_ncrypt_evp_pkey.c" />
+    <ClCompile Include="..\src\s_ncrypt_pkey.c" />
     <ClCompile Include="..\src\s_ncrypt_rsa.c" />
     <ClCompile Include="..\src\s_ncrypt_x509.c" />
     <ClCompile Include="..\src\s_ncrypt_loader.c" />
@@ -30,6 +31,7 @@
     <ClInclude Include="..\src\s_ncrypt_ec_lcl.h" />
     <ClInclude Include="..\src\s_ncrypt_err.h" />
     <ClInclude Include="..\src\s_ncrypt_evp_pkey_lcl.h" />
+    <ClInclude Include="..\src\s_ncrypt_pkey.h" />
     <ClInclude Include="..\src\s_ncrypt_rsa.h" />
     <ClInclude Include="..\src\s_ncrypt_rsa_lcl.h" />
     <ClInclude Include="..\src\s_ncrypt_x509_lcl.h" />
